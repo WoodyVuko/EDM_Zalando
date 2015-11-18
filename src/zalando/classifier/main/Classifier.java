@@ -47,41 +47,20 @@ public class Classifier implements Runnable{
 			String urlFromRaw = obj.get("url").toString();
 			String htmlFromRaw = obj.get("html").toString();			
 			String selector = identificator.evaluate(urlFromRaw, htmlFromRaw);
-			
-			switch (selector) {
-			case "wordpress":
-				WordpressPipe wp_pipe = new WordpressPipe(urlFromRaw, htmlFromRaw);
-				break;
-			case "blogger":
-				BloggerPipe bl_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw);
-				break;
-
-			default:
-				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw);
-				break;
-			}
-			
-			
-			FileWriter fileWriter = null;
-			BufferedWriter bufferedWriter = null;
-			try {
-				fileWriter = new FileWriter("files/tmp/test/" + name + "_"+ ++counter+".json");
-				bufferedWriter = new BufferedWriter(fileWriter);
-				bufferedWriter.write(obj.toJSONString());
-
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}finally {
-				if (bufferedWriter != null && fileWriter != null) {
-    				try {
-    					bufferedWriter.close();
-    					fileWriter.close();
-    				} catch (IOException e) {
-    					e.printStackTrace();
-    				}
-				}
-			}
+			String filename = ++counter + this.name;
+			BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
+//			switch (selector) {
+//			case "wordpress":
+//				WordpressPipe wp_pipe = new WordpressPipe(urlFromRaw, htmlFromRaw);
+//				break;
+//			case "blogger":
+//				BloggerPipe bl_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw);
+//				break;
+//
+//			default:
+//				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw);
+//				break;
+//			}
 		}
 	}
 }
