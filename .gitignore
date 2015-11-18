@@ -14,4 +14,3 @@ bin/zalando/classifier/pipes/BloggerPipe.class
 bin/zalando/classifier/pipes/WordpressPipe.class
 bin/zalando/classifier/sourcer/SourceInput.class
 bin/zalando/classifier/sourcer/SourceOutput.class
-files/final.json
