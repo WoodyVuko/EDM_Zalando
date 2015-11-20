@@ -51,6 +51,10 @@ public class BPPipe {
 			TextDocument doc = is.getTextDocument();
 			ArticleExtractor ex = new ArticleExtractor();
 			JSONObject goldObj = Start.gold.get(this.url);
+			if (goldObj == null) 
+			{
+				return;
+			}
 			String titleGold = goldObj.get("title").toString();
 			String text = goldObj.get("text").toString();
 			if (titleGold == null) {

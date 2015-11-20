@@ -60,14 +60,14 @@ public class Start {
 			
 			ClassifierThread1.start();
 			ClassifierThread2.start();
-			ClassifierThread3.start();
-			ClassifierThread4.start();
-			ClassifierThread5.start();
-			ClassifierThread6.start();
-			ClassifierThread7.start();
-			ClassifierThread8.start();
-			ClassifierThread9.start();
-			ClassifierThread10.start();
+//			ClassifierThread3.start();
+//			ClassifierThread4.start();
+//			ClassifierThread5.start();
+//			ClassifierThread6.start();
+//			ClassifierThread7.start();
+//			ClassifierThread8.start();
+//			ClassifierThread9.start();
+//			ClassifierThread10.start();
 			SourceInputThread.start();
 		}
 

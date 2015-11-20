@@ -3,6 +3,7 @@ package zalando.classifier.main;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONObject;
 
@@ -41,7 +42,11 @@ public class Classifier implements Runnable{
 	}
 	public void process() throws InterruptedException{
 		for(;;){
-			JSONObject obj = inputQueue.take();
+			JSONObject obj = inputQueue.poll(5, TimeUnit.SECONDS);
+			if (obj == null) 
+			{
+				break;
+			}
 			System.err.println(this.name + ": Taking Item form Q for processing");
 			
 			String urlFromRaw = obj.get("url").toString();
