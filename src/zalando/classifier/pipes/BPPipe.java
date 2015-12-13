@@ -68,8 +68,8 @@ public class BPPipe {
 				new File("files/tmp/test/" + this.selector + "/").mkdirs();
 				File file = new File("files/tmp/test/" + selector + "/" + this.filename + ".json");
 				JSONObject obj = new JSONObject();
-				int lev = StringUtils.getLevenshteinDistance(titlePipe, titleGold);
-				double jar = StringUtils.getJaroWinklerDistance(ex.getText(doc), goldObj.get("text").toString());
+				int lev = StringUtils.getLevenshteinDistance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
+				double jar = StringUtils.getJaroWinklerDistance(StringUtils.deleteWhitespace(ex.getText(doc)), StringUtils.deleteWhitespace(goldObj.get("text").toString()));
 				obj.put("url", this.url);
 				obj.put("title", lev);
 				obj.put("text", jar);
