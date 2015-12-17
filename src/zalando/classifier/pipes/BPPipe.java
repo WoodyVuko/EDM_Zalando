@@ -4,25 +4,13 @@ import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
-import info.debatty.java.stringsimilarity.JaroWinkler;
-import info.debatty.java.stringsimilarity.KShingling;
-import info.debatty.java.stringsimilarity.Levenshtein;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-import info.debatty.java.stringsimilarity.StringProfile;
 import zalando.classifier.Start;
 import zalando.classifier.main.SimilarityUtil;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.StringWriter;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.*;
@@ -52,7 +40,6 @@ public class BPPipe {
 			
 		try 
 		{
-			System.out.println(this.url);
 			InputSource input = new InputSource(new StringReader(this.html));
 			BoilerpipeSAXInput is = new BoilerpipeSAXInput(input);
 			TextDocument doc = is.getTextDocument();
@@ -77,12 +64,17 @@ public class BPPipe {
 				JSONObject obj = new JSONObject();
 				NormalizedLevenshtein nls = new NormalizedLevenshtein();
 				double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
+				if (titleGold == "" || titlePipe == "") {
+					lev = 0.0;
+				}
 				String docText = ex.getText(doc);
 				double jar = StringUtils.getJaroWinklerDistance(StringUtils.deleteWhitespace(docText), StringUtils.deleteWhitespace(goldObj.get("text").toString()));
 				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
 				obj.put("url", this.url);
-				obj.put("title", lev);
-				obj.put("text", jar);
+				obj.put("text", docText);
+				obj.put("title", titlePipe);
+				obj.put("title_lev", lev);
+				obj.put("text_jar", jar);
 				obj.put("text_cosine", cosine);
 				try {
 					FileUtils.writeStringToFile(file, obj.toJSONString());

@@ -13,7 +13,6 @@ import org.json.simple.JSONValue;
 import zalando.classifier.main.Classifier;
 import zalando.classifier.main.MyBlockingQueue;
 import zalando.classifier.sourcer.SourceInput;
-import zalando.classifier.sourcer.SourceOutput;
 
 public class Start {
 

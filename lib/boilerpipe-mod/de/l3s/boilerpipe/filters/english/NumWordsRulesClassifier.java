@@ -63,11 +63,6 @@ public class NumWordsRulesClassifier implements BoilerpipeFilter {
                 prevBlock = currentBlock;
                 currentBlock = nextBlock;
                 nextBlock = it.next();
-                if (currentBlock.getText().contains("ally doesn’t cre")) 
-                {
-        			System.out.println("break");
-        		}
-                System.out.println(currentBlock);
                 hasChanges = classify(prevBlock, currentBlock, nextBlock)
                         | hasChanges;
             }

@@ -1,16 +1,11 @@
 package zalando.classifier.main;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONObject;
 
 import zalando.classifier.pipes.BPPipe;
-import zalando.classifier.pipes.BloggerPipe;
-import zalando.classifier.pipes.WordpressPipe;
-import zalando.classifier.sourcer.SourceInput;
+import zalando.classifier.pipes.ManualWordpressPipe;
 
 public class Classifier implements Runnable{
 	private MyBlockingQueue inputQueue;
@@ -53,19 +48,25 @@ public class Classifier implements Runnable{
 			String htmlFromRaw = obj.get("html").toString();			
 			String selector = identificator.evaluate(urlFromRaw, htmlFromRaw);
 			String filename = ++counter + this.name;
-			BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
-//			switch (selector) {
+			
+			switch (selector) {
 //			case "wordpress":
-//				WordpressPipe wp_pipe = new WordpressPipe(urlFromRaw, htmlFromRaw);
+//				new WordpressPipe(urlFromRaw, htmlFromRaw);
 //				break;
 //			case "blogger":
-//				BloggerPipe bl_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw);
+//				new BloggerPipe(urlFromRaw, htmlFromRaw);
 //				break;
-//
-//			default:
-//				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw);
-//				break;
-//			}
+			case "manual_wordpress":
+				ManualWordpressPipe mwp = new ManualWordpressPipe(urlFromRaw, htmlFromRaw, filename);
+				mwp.process();
+				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
+				break;
+
+			default:
+				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
+				break;
+			} 
+			
 		}
 	}
 }

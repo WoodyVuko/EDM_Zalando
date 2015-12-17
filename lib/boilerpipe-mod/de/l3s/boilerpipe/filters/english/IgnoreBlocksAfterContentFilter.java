@@ -60,10 +60,6 @@ public final class IgnoreBlocksAfterContentFilter extends HeuristicFilterBase im
         boolean foundEndOfText = false;
         for (Iterator<TextBlock> it = doc.getTextBlocks().iterator(); it.hasNext();) {
             TextBlock block = it.next();
-            if (block.getText().contains("Quite possibly one of t")) 
-            {
-    			System.out.println("break");
-    		}
             final boolean endOfText = block
                     .hasLabel(DefaultLabels.INDICATES_END_OF_TEXT);
             if (block.isContent()) {

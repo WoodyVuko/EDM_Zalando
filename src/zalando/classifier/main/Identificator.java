@@ -11,14 +11,17 @@ import com.rometools.rome.io.XmlReader;
 public class Identificator {
 	
 	final ArrayList<Pattern> patternList = new ArrayList<>();
-
+	Pattern manualWP = Pattern.compile("<((article)|(div)).*id=\"post[-_]\\d+.*\">", Pattern.DOTALL);
+	
 	public Identificator() {
-		super();
+		super();	
 		// TODO Auto-generated constructor stub
 		Pattern p1 = Pattern.compile("[^(http|https)://][a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*");
 		Pattern p2 = Pattern.compile("wp[-_][a-zA-Z0-9]*");
 		Pattern p3 = Pattern.compile(".*?\\bhi\\b.*?");
 		Pattern p4 = Pattern.compile("(wp)*");
+		
+		
 		
 		patternList.add(p1);patternList.add(p2);patternList.add(p3);patternList.add(p4);
 	}
@@ -26,11 +29,15 @@ public class Identificator {
 	
 	public String evaluate(String...strings){
 		for (String element : strings) {
-			for (Pattern pat : patternList) 
-				if (pat.matcher(element).matches()){
-					isWordpress = true;
-					return "wordpress";
-				}
+			if (manualWP.matcher(element).find()) {
+				return "manual_wordpress";
+			}
+//			for (Pattern pat : patternList) 
+//				if (pat.matcher(element).find()){
+//					isWordpress = true;
+//					
+//					return "wordpress";
+//				}
 		}
 		
 		

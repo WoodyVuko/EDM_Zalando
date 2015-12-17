@@ -50,7 +50,6 @@ public class TerminatingBlocksFinder implements BoilerpipeFilter {
 		// long t = System.currentTimeMillis();
 
 		for (TextBlock tb : doc.getTextBlocks()) {
-			System.out.println(tb.getText());
 			final int numWords = tb.getNumWords();
 			if (numWords < 15) {
 				final String text = tb.getText().trim();

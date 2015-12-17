@@ -69,9 +69,6 @@ public class TextBlock implements Cloneable {
             final int numWordsInWrappedLines, final int numWrappedLines,
             final int offsetBlocks, Attributes atts) {
         this.text = text;
-        if (text.contains("Sweater: Drifter")) {
-			System.out.println("");
-		}
         this.containedTextElements = containedTextElements;
         this.numWords = numWords;
         this.numWordsInAnchorText = numWordsInAnchorText;
@@ -88,9 +85,6 @@ public class TextBlock implements Cloneable {
             final int numWordsInWrappedLines, final int numWrappedLines,
             final int offsetBlocks) {
         this.text = text;
-        if (text.contains("Sweater: Drifter")) {
-			System.out.println("");
-		}
         this.containedTextElements = containedTextElements;
         this.numWords = numWords;
         this.numWordsInAnchorText = numWordsInAnchorText;

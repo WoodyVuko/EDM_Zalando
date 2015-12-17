@@ -17,16 +17,12 @@
  */
 package de.l3s.boilerpipe.document;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.xml.sax.Attributes;
-
 import de.l3s.boilerpipe.labels.DefaultLabels;
 
 /**

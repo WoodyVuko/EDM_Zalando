@@ -17,10 +17,8 @@
  */
 package de.l3s.boilerpipe.sax;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +26,10 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.xerces.util.XMLAttributesImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
-
-import com.sun.org.apache.xerces.internal.util.AttributesProxy;
-import com.sun.org.apache.xerces.internal.xni.QName;
-
 import de.l3s.boilerpipe.document.TextBlock;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.labels.LabelAction;

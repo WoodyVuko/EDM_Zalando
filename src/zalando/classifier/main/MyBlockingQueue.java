@@ -1,7 +1,6 @@
 package zalando.classifier.main;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import org.json.simple.JSONObject;
