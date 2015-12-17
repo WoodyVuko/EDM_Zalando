@@ -52,6 +52,7 @@ public class BPPipe {
 			
 		try 
 		{
+			System.out.println(this.url);
 			InputSource input = new InputSource(new StringReader(this.html));
 			BoilerpipeSAXInput is = new BoilerpipeSAXInput(input);
 			TextDocument doc = is.getTextDocument();

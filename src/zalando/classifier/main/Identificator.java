@@ -1,16 +1,17 @@
 package zalando.classifier.main;
 
-import java.awt.List;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 
 public class Identificator {
 	
 	final ArrayList<Pattern> patternList = new ArrayList<>();
 
-
-
-	
 	public Identificator() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -34,5 +35,18 @@ public class Identificator {
 		
 		
 		return "default";
+	}
+	
+	public boolean checkForRssAvailability(URL url) {
+		
+		try {
+		SyndFeedInput input = new SyndFeedInput();
+        SyndFeed feed = input.build(new XmlReader(url)); 
+		}
+		catch (Exception ex)
+		{
+			
+		}
+		return false;
 	}
 }

@@ -59,7 +59,7 @@ public class Start {
 			
 			
 			ClassifierThread1.start();
-			ClassifierThread2.start();
+//			ClassifierThread2.start();
 //			ClassifierThread3.start();
 //			ClassifierThread4.start();
 //			ClassifierThread5.start();
