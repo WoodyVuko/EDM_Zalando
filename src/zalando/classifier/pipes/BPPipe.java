@@ -35,7 +35,7 @@ public class BPPipe {
 		this.process();
 	}
 
-	private void process() {
+	public JSONObject process() {
 		// TODO Auto-generated method stub
 			
 		try 
@@ -47,7 +47,7 @@ public class BPPipe {
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
 			{
-				return;
+				return null;
 			}
 			String titleGold = goldObj.get("title").toString();
 			String text = goldObj.get("text").toString();
@@ -76,12 +76,13 @@ public class BPPipe {
 				obj.put("title_lev", lev);
 				obj.put("text_jar", jar);
 				obj.put("text_cosine", cosine);
-				try {
-					FileUtils.writeStringToFile(file, obj.toJSONString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				return obj;
+				//				try {
+//					FileUtils.writeStringToFile(file, obj.toJSONString());
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 		} 
 		catch (BoilerpipeProcessingException e) 
 		{	
@@ -90,6 +91,7 @@ public class BPPipe {
 			// TODO Auto-generated catch block
 			System.out.println("sax error:" + e.getMessage());
 		}
+		return null;
 		
 	}
 }

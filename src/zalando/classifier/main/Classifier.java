@@ -9,14 +9,16 @@ import zalando.classifier.pipes.ManualWordpressPipe;
 
 public class Classifier implements Runnable{
 	private MyBlockingQueue inputQueue;
+	private MyBlockingQueue outputQueue;
 	private Identificator identificator = new Identificator();
 	//private SourceInput input = new SourceInput();
 	public int counter = 0;
 	public String name = "";
-	public Classifier(String name, MyBlockingQueue inputQueue) {
+	public Classifier(String name, MyBlockingQueue inputQueue, MyBlockingQueue outputQueue) {
 		super();
 		this.name = name;
 		this.inputQueue = inputQueue;
+		this.outputQueue = outputQueue;
 	}
 
 	public void init(){
@@ -63,7 +65,13 @@ public class Classifier implements Runnable{
 				break;
 
 			default:
-				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
+				//anstatt in der pipe jedes JSONObj zu schreiben, geben wir es in den Classifier
+				//zurueck, damit der das schreibt, weil er asyncron alle processed Objs kriegen soll
+				//er schreibt es in die OutputQueue. 
+				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
+				JSONObject result = bp_pipe.process();
+				if(result != null)
+					outputQueue.put(result);
 				break;
 			} 
 			
