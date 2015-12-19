@@ -1,19 +1,11 @@
 package zalando.classifier.sourcer;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 import zalando.classifier.main.MyBlockingQueue;
 
 public class SourceOutput implements Runnable {
@@ -21,7 +13,7 @@ public class SourceOutput implements Runnable {
 	public MyBlockingQueue inputQueue;
 	public MyBlockingQueue outputQueue;
 	private Hashtable<String, FileWriter> outputDictionary;
-	public String startPath = "files/tmp/output/";
+	public String startPath = "files/output/";
 
 	public SourceOutput(String name, MyBlockingQueue outputQueue, MyBlockingQueue inputQueue) {
 		super();
@@ -70,7 +62,9 @@ public class SourceOutput implements Runnable {
 			
 			FileWriter writer = this.outputDictionary.get(selector);
 			if (writer == null) {
-				writer = new FileWriter("files/tmp/test/" + selector + "/result.json");
+				String directory = startPath + selector;
+				new File(directory).mkdirs();
+				writer = new FileWriter(directory + "/result.json");
 				writer.write("[");
 				this.outputDictionary.put(selector, writer);
 			} else {

@@ -1,46 +1,15 @@
 package zalando.classifier.pipes;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.xerces.dom.AttrNSImpl;
-import org.apache.xerces.dom.CoreDocumentImpl;
 import org.cyberneko.html.parsers.DOMParser;
-import org.jdom2.input.DOMBuilder;
-import org.jdom2.output.DOMOutputter;
-import org.jdom2.output.XMLOutputter;
 import org.json.simple.JSONObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
 import zalando.classifier.main.SimilarityUtil;

@@ -8,10 +8,7 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
 import zalando.classifier.main.SimilarityUtil;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.*;
 import org.xml.sax.InputSource;
@@ -59,8 +56,6 @@ public class BPPipe {
 				titlePipe = "";
 			}
 			
-				new File("files/tmp/test/" + this.selector + "/").mkdirs();
-				File file = new File("files/tmp/test/" + selector + "/" + this.filename + ".json");
 				JSONObject obj = new JSONObject();
 				NormalizedLevenshtein nls = new NormalizedLevenshtein();
 				double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));

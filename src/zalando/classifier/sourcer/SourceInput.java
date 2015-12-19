@@ -11,7 +11,7 @@ import zalando.classifier.main.MyBlockingQueue;
 public class SourceInput implements Runnable{
 
 	private MyBlockingQueue inputQueue;
-	public String startPath = "files/tmp";
+	public String startPath = "files/";
 	public String name = "";
 	public SourceInput(String name, MyBlockingQueue inputQueue) {
 		super();
