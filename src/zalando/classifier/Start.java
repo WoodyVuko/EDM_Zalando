@@ -47,7 +47,7 @@ public class Start {
 			MyBlockingQueue inputQ = new MyBlockingQueue("BQInput", 300);
 			MyBlockingQueue outputQ = new MyBlockingQueue("BQOutput", 300);
 			Thread SourceInputThread = new Thread(new SourceInput("SourceInT1", inputQ));
-			Thread SourceOutputThread = new Thread(new SourceOutput("SourceOutT1", outputQ));
+			Thread SourceOutputThread = new Thread(new SourceOutput("SourceOutT1", outputQ, inputQ));
 			
 			Thread ClassifierThread1 = new Thread(new Classifier("ClassifierT1", inputQ, outputQ));
 			Thread ClassifierThread2 = new Thread(new Classifier("ClassifierT2", inputQ, outputQ));

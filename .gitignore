@@ -15,3 +15,5 @@ bin/zalando/classifier/pipes/WordpressPipe.class
 bin/zalando/classifier/sourcer/SourceInput.class
 bin/zalando/classifier/sourcer/SourceOutput.class
 /bin/
+result.json
+neu.json

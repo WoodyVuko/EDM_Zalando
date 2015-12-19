@@ -49,18 +49,16 @@ public class ManualWordpressPipe {
 	
 	private String url;
 	private String html;
-	private String filename;
 	
-	public ManualWordpressPipe(String url, String html, String filename) {
+	public ManualWordpressPipe(String url, String html) {
 		super();
 		this.url = url;
 		this.html = html;
-		this.filename = filename;
 		// TODO Auto-generated constructor stub
 		System.err.println("Manual Wordpress Pipe active");
 	}
 	
-	public void process()
+	public JSONObject process()
 	{	
 		DOMParser parser = new DOMParser();
 		InputSource is = new InputSource(new StringReader(this.html));
@@ -72,7 +70,7 @@ public class ManualWordpressPipe {
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
 			{
-				return;
+				return null;
 			}
 			String titleGold = goldObj.get("title").toString();
 			String text = goldObj.get("text").toString();
@@ -84,8 +82,6 @@ public class ManualWordpressPipe {
 				titlePipe = "";
 			}
 			
-			new File("files/tmp/test/manual_wordpress/").mkdirs();
-			File file = new File("files/tmp/test/manual_wordpress/" + this.filename + ".json");
 			JSONObject obj = new JSONObject();
 			NormalizedLevenshtein nls = new NormalizedLevenshtein();
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
@@ -98,28 +94,32 @@ public class ManualWordpressPipe {
 			obj.put("title_lev", lev);
 			obj.put("text_jar", jar);
 			obj.put("text_cosine", cosine);
-			try {
-				FileUtils.writeStringToFile(file, obj.toJSONString());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			
-			doc = this.cleanNode(doc);
-			
-			StringWriter sw = new StringWriter();
-		    Transformer t = TransformerFactory.newInstance().newTransformer();
-		    t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    t.transform(new DOMSource(doc), new StreamResult(sw));			
-			String xml = sw.toString();
-			
-			new BPPipe(this.url, xml, "manual_wordpress", filename+"_from_mwp");
+			return obj;
+//			try {
+//				FileUtils.writeStringToFile(file, obj.toJSONString());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//			doc = this.cleanNode(doc);
+//			
+//			StringWriter sw = new StringWriter();
+//		    Transformer t = TransformerFactory.newInstance().newTransformer();
+//		    t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+//		    t.transform(new DOMSource(doc), new StreamResult(sw));			
+//			String xml = sw.toString();
+//			
+//			new BPPipe(this.url, xml, "manual_wordpress", filename+"_from_mwp");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println(this.url);
 			e.printStackTrace();
 		}
+		
+		return null;
 	}
 	
 	private Node getNodesOfInterest(Node node)

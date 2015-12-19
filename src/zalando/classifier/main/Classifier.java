@@ -42,6 +42,9 @@ public class Classifier implements Runnable{
 			JSONObject obj = inputQueue.poll(5, TimeUnit.SECONDS);
 			if (obj == null) 
 			{
+				synchronized (this.inputQueue) {
+					this.inputQueue.notify();
+				}
 				break;
 			}
 			System.err.println(this.name + ": Taking Item form Q for processing");
@@ -59,12 +62,17 @@ public class Classifier implements Runnable{
 //				new BloggerPipe(urlFromRaw, htmlFromRaw);
 //				break;
 			case "manual_wordpress":
-				ManualWordpressPipe mwp = new ManualWordpressPipe(urlFromRaw, htmlFromRaw, filename);
-				mwp.process();
+			{
+				ManualWordpressPipe mwp = new ManualWordpressPipe(urlFromRaw, htmlFromRaw);
+				JSONObject result = mwp.process();
+				result.put("selector", selector);
+				if(result != null)
+					outputQueue.put(result);
 				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
 				break;
-
+			}
 			default:
+			{
 				//anstatt in der pipe jedes JSONObj zu schreiben, geben wir es in den Classifier
 				//zurueck, damit der das schreibt, weil er asyncron alle processed Objs kriegen soll
 				//er schreibt es in die OutputQueue. 
@@ -73,6 +81,7 @@ public class Classifier implements Runnable{
 				if(result != null)
 					outputQueue.put(result);
 				break;
+			}
 			} 
 			
 		}
