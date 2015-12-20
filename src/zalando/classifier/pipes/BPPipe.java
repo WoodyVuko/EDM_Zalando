@@ -65,12 +65,21 @@ public class BPPipe {
 				String docText = ex.getText(doc);
 				double jar = StringUtils.getJaroWinklerDistance(StringUtils.deleteWhitespace(docText), StringUtils.deleteWhitespace(goldObj.get("text").toString()));
 				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-				obj.put("url", this.url);
-				obj.put("text", docText);
-				obj.put("title", titlePipe);
-				obj.put("title_lev", lev);
-				obj.put("text_jar", jar);
-				obj.put("text_cosine", cosine);
+				
+				JSONObject pipeObj = new JSONObject();
+				pipeObj.put("title", titlePipe);
+				pipeObj.put("text", docText);
+							
+				JSONObject simObj = new JSONObject();
+				simObj.put("title", lev);
+				simObj.put("text_jar", jar);
+				simObj.put("text_cosine", cosine);
+				
+				obj.put("source", this.url);
+				obj.put("pipe", pipeObj);
+				obj.put("gold", goldObj);
+				obj.put("similarity", simObj);
+
 				return obj;
 				//				try {
 //					FileUtils.writeStringToFile(file, obj.toJSONString());

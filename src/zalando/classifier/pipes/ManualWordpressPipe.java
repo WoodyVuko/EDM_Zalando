@@ -11,7 +11,6 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.json.simple.JSONObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
@@ -85,12 +84,20 @@ public class ManualWordpressPipe {
 			docText = StringEscapeUtils.unescapeJava(docText);
 			double jar = StringUtils.getJaroWinklerDistance(StringUtils.deleteWhitespace(docText), StringUtils.deleteWhitespace(goldObj.get("text").toString()));
 			double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-			obj.put("url", this.url);
-			obj.put("text", docText);
-			obj.put("title", titlePipe);
-			obj.put("title_lev", lev);
-			obj.put("text_jar", jar);
-			obj.put("text_cosine", cosine);
+			
+			JSONObject pipeObj = new JSONObject();
+			pipeObj.put("title", titlePipe);
+			pipeObj.put("text", docText);
+						
+			JSONObject simObj = new JSONObject();
+			simObj.put("title", lev);
+			simObj.put("text_jar", jar);
+			simObj.put("text_cosine", cosine);
+			
+			obj.put("source", this.url);
+			obj.put("pipe", pipeObj);
+			obj.put("gold", goldObj);
+			obj.put("similarity", simObj);
 			
 			return obj;
 //			try {
