@@ -82,7 +82,6 @@ public class ManualWordpressPipe {
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
 			String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
 			docText = StringEscapeUtils.unescapeJava(docText);
-			double jar = StringUtils.getJaroWinklerDistance(StringUtils.deleteWhitespace(docText), StringUtils.deleteWhitespace(goldObj.get("text").toString()));
 			double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
 			
 			JSONObject pipeObj = new JSONObject();
@@ -91,8 +90,7 @@ public class ManualWordpressPipe {
 						
 			JSONObject simObj = new JSONObject();
 			simObj.put("title", lev);
-			simObj.put("text_jar", jar);
-			simObj.put("text_cosine", cosine);
+			simObj.put("text", cosine);
 			
 			obj.put("source", this.url);
 			obj.put("pipe", pipeObj);
