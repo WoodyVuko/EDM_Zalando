@@ -80,17 +80,19 @@ public class ManualWordpressPipe {
 			JSONObject obj = new JSONObject();
 			NormalizedLevenshtein nls = new NormalizedLevenshtein();
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
+			String levFine = String.format("%.2f", lev);
 			String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
 			docText = StringEscapeUtils.unescapeJava(docText);
 			double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-			
+			String cosineFine = String.format("%.2f", cosine);
+
 			JSONObject pipeObj = new JSONObject();
 			pipeObj.put("title", titlePipe);
 			pipeObj.put("text", docText);
 						
 			JSONObject simObj = new JSONObject();
-			simObj.put("title", lev);
-			simObj.put("text", cosine);
+			simObj.put("title", levFine);
+			simObj.put("text", cosineFine);
 			
 			obj.put("source", this.url);
 			obj.put("pipe", pipeObj);
