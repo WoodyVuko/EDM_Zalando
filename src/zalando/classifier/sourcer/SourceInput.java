@@ -57,9 +57,14 @@ public class SourceInput implements Runnable{
 				if (files[i].isDirectory()) {
 					System.out.print("Directory found skipping");
 				} else {
-					System.out.println(this.name + ": Found new File! Opening... " + files[i].getPath());
-					//System.err.println("Peek Queue " + this.inputQueue.peek());
-					read(files[i].getPath());
+//					System.out.println(this.name + ": Found new File! Opening... " + files[i].getPath());
+//					//System.err.println("Peek Queue " + this.inputQueue.peek());
+//					read(files[i].getPath());
+					if (files[i].getName().contains("rss")) {
+						System.out.println(this.name + ": Found new File! Opening... " + files[i].getPath());
+						//System.err.println("Peek Queue " + this.inputQueue.peek());
+						read(files[i].getPath());
+					}
 				}
 			}
 		}

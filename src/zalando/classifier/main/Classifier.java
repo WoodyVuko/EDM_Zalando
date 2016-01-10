@@ -71,6 +71,8 @@ public class Classifier implements Runnable{
 				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
 				break;
 			}
+			case "rss":
+				break;
 			default:
 			{
 				//anstatt in der pipe jedes JSONObj zu schreiben, geben wir es in den Classifier

@@ -23,7 +23,8 @@ public class Start {
 		// TODO Auto-generated method stub
 		
 		String everything = null;
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final.json")), "UTF8"))) {
+//		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final.json")), "UTF8"))) {
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final_rss.json")), "UTF8"))) {
 		    StringBuilder sb = new StringBuilder();
 		    String line = br.readLine();
 
@@ -61,7 +62,7 @@ public class Start {
 			Thread ClassifierThread10 = new Thread(new Classifier("ClassifierT10", inputQ, outputQ));
 			
 			ClassifierThread1.start();
-			ClassifierThread2.start();
+//			ClassifierThread2.start();
 //			ClassifierThread3.start();
 //			ClassifierThread4.start();
 //			ClassifierThread5.start();

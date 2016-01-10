@@ -8,7 +8,9 @@
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/java-string-similarity-0.13.jar"/>
-	<classpathentry kind="lib" path="lib/rome-1.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/jdom2-2.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/feed4j.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

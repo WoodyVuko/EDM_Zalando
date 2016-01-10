@@ -51,16 +51,7 @@ public class ManualWordpressPipe {
 			parser.parse(is);
 			Node doc = parser.getDocument();
 			doc = this.getNodesOfInterest(doc);
-			System.out.println(this.url);
-			if (this.url.equalsIgnoreCase("http://www.manrepeller.com/2012/10/bagging.html")) {
-				int i = 1;
-			}
 			removeTags(doc);
-			if (this.url.equalsIgnoreCase("http://www.manrepeller.com/2012/10/bagging.html")) {
-				print(doc, " ");
-			}
-//			print(doc, "  ");
-			System.out.println("----");
 			
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
