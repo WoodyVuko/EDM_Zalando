@@ -62,16 +62,19 @@ public class BPPipe {
 				if (titleGold == "" || titlePipe == "") {
 					lev = 0.0;
 				}
-				String docText = ex.getText(doc);
+			String levFine = String.format("%.2f", lev);
+
+			String docText = ex.getText(doc);
 				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-				
-				JSONObject pipeObj = new JSONObject();
+				String cosineFine = String.format("%.2f", cosine);
+
+			JSONObject pipeObj = new JSONObject();
 				pipeObj.put("title", titlePipe);
 				pipeObj.put("text", docText);
 							
 				JSONObject simObj = new JSONObject();
-				simObj.put("title", lev);
-				simObj.put("text", cosine);
+				simObj.put("title", levFine);
+				simObj.put("text", cosineFine);
 				
 				obj.put("source", this.url);
 				obj.put("pipe", pipeObj);

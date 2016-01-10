@@ -53,6 +53,7 @@ public class ManualWordpressPipe {
 			doc = this.getNodesOfInterest(doc);
 			removeTags(doc);
 			
+			//COMPARING START
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
 			{
@@ -67,26 +68,37 @@ public class ManualWordpressPipe {
 			if (titlePipe == null) {
 				titlePipe = "";
 			}
-			
+			//toDO nicht alle unprintable Sachen löschen evtl, Linebreaks
 			JSONObject obj = new JSONObject();
 			NormalizedLevenshtein nls = new NormalizedLevenshtein();
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
-			String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
-			docText = StringEscapeUtils.unescapeJava(docText);
-			double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-			
-			JSONObject pipeObj = new JSONObject();
-			pipeObj.put("title", titlePipe);
-			pipeObj.put("text", docText);
-						
-			JSONObject simObj = new JSONObject();
-			simObj.put("title", lev);
-			simObj.put("text", cosine);
-			
-			obj.put("source", this.url);
-			obj.put("pipe", pipeObj);
-			obj.put("gold", goldObj);
-			obj.put("similarity", simObj);
+			String levFine = String.format("%.2f", lev);
+			if(doc != null){
+				String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
+				docText = StringEscapeUtils.unescapeJava(docText);
+				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
+				String cosineFine = String.format("%.2f", cosine);
+				//COMPARING END
+				
+				//toDO Collect more Meta Informations
+				//like author, url, domain, date, img-alt-tag think about more
+				//
+				JSONObject pipeObj = new JSONObject();
+				pipeObj.put("title", titlePipe);
+				pipeObj.put("text", docText);
+							
+				JSONObject simObj = new JSONObject();
+				simObj.put("title", levFine);
+				simObj.put("text", cosineFine);
+				
+				obj.put("source", this.url);
+				obj.put("pipe", pipeObj);
+				obj.put("gold", goldObj);
+				obj.put("similarity", simObj);
+			}
+
+
+
 			
 			return obj;
 //			try {
@@ -114,7 +126,9 @@ public class ManualWordpressPipe {
 		
 		return null;
 	}
-	
+	//toDo find more matches to make result better
+	//check Images
+	//
 	private Node getNodesOfInterest(Node node)
 	{
 		if (node.getNodeName().equalsIgnoreCase("div") || node.getNodeName().equalsIgnoreCase("article")) {
@@ -132,6 +146,7 @@ public class ManualWordpressPipe {
 							noi = node;
 							break;
 						}
+						//if post or article found try to find a id or class
 						if (p2.matcher(realAtt.getValue()).find()) {
 							return node;
 						}
@@ -179,25 +194,26 @@ public class ManualWordpressPipe {
 	
 	private void removeTags(Node node)
 	{
-		boolean deleteNode = false;
-		NamedNodeMap atts = node.getAttributes();
-		if (atts != null) {
-			for (int i = 0; i < atts.getLength(); i++) {
-				Object att = atts.item(i);
-				if (att instanceof AttrNSImpl) {
-					AttrNSImpl realAtt = (AttrNSImpl)att;
-					if (unwantedAtts.contains(realAtt.getName())) {
-						atts.removeNamedItem(realAtt.getName());
-					}
-					for (Pattern pattern : unwantedCss) {
-						if (pattern.matcher(realAtt.getNodeValue()).find()) {
-							removeSiblings(node);
-							return;
+		if(node != null){
+			boolean deleteNode = false;
+			NamedNodeMap atts = node.getAttributes();
+			if (atts != null) {
+				for (int i = 0; i < atts.getLength(); i++) {
+					Object att = atts.item(i);
+					if (att instanceof AttrNSImpl) {
+						AttrNSImpl realAtt = (AttrNSImpl)att;
+						if (unwantedAtts.contains(realAtt.getName())) {
+							atts.removeNamedItem(realAtt.getName());
+						}
+						for (Pattern pattern : unwantedCss) {
+							if (pattern.matcher(realAtt.getNodeValue()).find()) {
+								removeSiblings(node);
+								return;
+							}
 						}
 					}
 				}
-			}
-		}
+			}	
 		if (this.unwantedTags.contains(node.getNodeName().toLowerCase())) {
 			node.setTextContent("");
 		}
@@ -210,6 +226,7 @@ public class ManualWordpressPipe {
         	removeTags(child);
             child = child.getNextSibling();
         }
+		}
 	}
 	
 	private void removeSiblings(Node node)
