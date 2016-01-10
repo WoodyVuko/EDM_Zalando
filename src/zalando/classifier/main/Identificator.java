@@ -47,10 +47,10 @@ public class Identificator {
 		
 		Pattern tumblr_main1 = Pattern.compile("tumbl[a-zA-Z0-9]*");
 		//TODO
-		//RegEx für Spezialisierung-Wordpress aufbauen. Spezialisierung == CMS
+		//RegEx fï¿½r Spezialisierung-Wordpress aufbauen. Spezialisierung == CMS
 		//Wordpress Pattern Liste mit Inhalt dieser Regex
 		//falles eines matched -> manualWP
-		//wiederhole für alle SPezialisierungen
+		//wiederhole fï¿½r alle SPezialisierungen
 		//jedes switch-case hat eine eigene patternliste zum abarbeiten
 		
 		//WORDPRESS PATTERN
@@ -64,64 +64,88 @@ public class Identificator {
 		Tumbl_PatternArrayList.add(tumblr_main1);
 		
 	}
-	public boolean isWordpress = false;
+	public boolean isBlogger = false;
 	 
 	public String evaluate(String...strings){
 		
+		String ident = "";
+		
+		for (String element : strings) {
+			for (Pattern pat : WordPress_PatternArrayList) {
+				if (pat.matcher(element).find()){
+					ident = "manual_wordpress";
+					break;
+				}
+			}
+		}
+		
+		if (ident.equalsIgnoreCase("")) {
+			int bloggrCount = 0;
+			for (String element : strings) {
+				for (Pattern pat : Blogger_PatternArrayList) {
+					
+					while (pat.matcher(element).find()){
+						bloggrCount++;
+						if (bloggrCount >= 10){
+							isBlogger = true;
+							ident = "blogger";
+							break;
+					}
+						
+
+					}
+				}
+			}
+		}
+		
+		if (ident.equalsIgnoreCase("")) {
+			int tumblrCount = 0;
+			for (String element : strings) {
+				for (Pattern pat : Tumbl_PatternArrayList) {
+					
+					while (pat.matcher(element).find()){
+						tumblrCount++;
+						if (tumblrCount >= 10){
+							ident = "tumblr";
+							break;
+					}
+						
+
+					}
+				}
+			}
+		}
+		
+		
 		try {
-			URI feedURI = this.getRssURI(new URI(strings[0]));
+			URI feedURI = this.getRssURI(new URI(strings[0]), isBlogger);
 			boolean feed = this.checkForRssAvailability(feedURI, new URI(strings[0]));
 			
-			System.out.println("did found feed? " + feed + " for url: " + strings[0]);
-			return "rss";
+			if (feed) {
+				ident = "rss";
+			}
 			
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		for (String element : strings) {
-			for (Pattern pat : WordPress_PatternArrayList) {
-				if (pat.matcher(element).find()){
-					isWordpress = true;
-					return "manual_wordpress";
-				}
-			}
+		if (ident.equalsIgnoreCase("")) {
+			ident = "default";
 		}
-		int bloggrCount = 0;
-		for (String element : strings) {
-			for (Pattern pat : Blogger_PatternArrayList) {
-				
-				while (pat.matcher(element).find()){
-					bloggrCount++;
-					if (bloggrCount >= 10){
-						return "blogger";
-				}
-					
-
-				}
-			}
-		}
-		int tumblrCount = 0;
-		for (String element : strings) {
-			for (Pattern pat : Tumbl_PatternArrayList) {
-				
-				while (pat.matcher(element).find()){
-					tumblrCount++;
-					if (tumblrCount >= 10){
-						return "tumblr";
-				}
-					
-
-				}
-			}
-		}
-		return "default";
+		
+		return ident;
 	}
 	
-	private Node findRSSNode(Node node)
+	private Node findRSSNode(Node node, boolean isBlogger)
 	{
 		Node child = node.getFirstChild();
+		String relValue = "alternate";
+		String typeValue = "application/rss+xml";
+		if (isBlogger) {
+			relValue = "service.post";
+			typeValue = "application/atom+xml";
+		}
         while (child != null) {
         	
         	if(child.getNodeName().equalsIgnoreCase("link")) {
@@ -131,17 +155,18 @@ public class Identificator {
         			boolean isRSS = false;
         			boolean isWrong = false;
         			String rssLink = null;
+        			
         			for (int i = 0; i < atts.getLength(); i++) {
         				Object att = atts.item(i);
         				if (att instanceof AttrNSImpl) {
         					AttrNSImpl realAtt = (AttrNSImpl)att;
         					if (realAtt.getName().equalsIgnoreCase("rel") && 
-        						realAtt.getValue().equalsIgnoreCase("alternate")) {
+        						realAtt.getValue().equalsIgnoreCase(relValue)) {
 								isAlternate = true;
 								continue;
 							}
         					if (realAtt.getName().equalsIgnoreCase("type") && 
-            					realAtt.getValue().equalsIgnoreCase("application/rss+xml")) {
+            					realAtt.getValue().equalsIgnoreCase(typeValue)) {
     								isRSS = true;
     								continue;
     						}
@@ -164,10 +189,10 @@ public class Identificator {
         	}
         	
         	if (child.getNodeName().equalsIgnoreCase("head")) {
-        		return findRSSNode(child);
+        		return findRSSNode(child, isBlogger);
         	}
         	Node noi = null;
-        	noi = findRSSNode(child);
+        	noi = findRSSNode(child, isBlogger);
         	if (noi != null) {
 				return noi;
 			}
@@ -176,7 +201,7 @@ public class Identificator {
 		return null;
 	}
 	
-	public URI getRssURI(URI uri)
+	public URI getRssURI(URI uri, boolean isBlogger)
 	{
 		try {
 			URL hostUrl = new URL(uri.getScheme() + "://" + uri.getHost());
@@ -185,7 +210,7 @@ public class Identificator {
 			InputSource is = new InputSource(new StringReader(html));
 			parser.parse(is);
 			Node doc = parser.getDocument();
-			Node noi = findRSSNode(doc);
+			Node noi = findRSSNode(doc, isBlogger);
 			if (noi != null) {
 				NamedNodeMap atts = noi.getAttributes();
 				if (atts != null) {
