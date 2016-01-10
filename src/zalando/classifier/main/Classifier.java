@@ -1,5 +1,6 @@
 package zalando.classifier.main;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONObject;
@@ -37,6 +38,11 @@ public class Classifier implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	public ArrayList<String> manualWPPipeCounter = new ArrayList<String>();
+	public ArrayList<String> bloggerPipeCounter = new ArrayList<String>();
+	public ArrayList<String> tumblrPipeCounter = new ArrayList<String>();
+	public ArrayList<String> defaultPipeCounter = new ArrayList<String>();
+	
 	public void process() throws InterruptedException{
 		for(;;){
 			JSONObject obj = inputQueue.poll(5, TimeUnit.SECONDS);
@@ -69,6 +75,17 @@ public class Classifier implements Runnable{
 				if(result != null)
 					outputQueue.put(result);
 				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
+				manualWPPipeCounter.add(urlFromRaw);
+				break;
+			}
+			case "blogger":
+			{
+				bloggerPipeCounter.add(urlFromRaw);
+				break;
+			}
+			case "tumblr":
+			{
+				tumblrPipeCounter.add(urlFromRaw);
 				break;
 			}
 			default:
@@ -78,12 +95,18 @@ public class Classifier implements Runnable{
 				//er schreibt es in die OutputQueue. 
 				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
 				JSONObject result = bp_pipe.process();
-				if(result != null)
+				if(result != null){
 					outputQueue.put(result);
+					defaultPipeCounter.add(urlFromRaw);
+				}
 				break;
 			}
 			} 
 			
 		}
+		System.out.println("Default: " +defaultPipeCounter.size());
+		System.out.println("Wordpress: " +manualWPPipeCounter.size());
+		System.out.println("Blogger: " +bloggerPipeCounter.size());
+		System.out.println("Tumblr: " +tumblrPipeCounter.size());
 	}
 }
