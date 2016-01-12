@@ -60,7 +60,7 @@ public class SourceInput implements Runnable{
 //					System.out.println(this.name + ": Found new File! Opening... " + files[i].getPath());
 //					//System.err.println("Peek Queue " + this.inputQueue.peek());
 //					read(files[i].getPath());
-					if (!files[i].getName().contains("rss")) {
+					if (files[i].getName().contains("rss")) {
 						System.out.println(this.name + ": Found new File! Opening... " + files[i].getPath());
 						//System.err.println("Peek Queue " + this.inputQueue.peek());
 						read(files[i].getPath());

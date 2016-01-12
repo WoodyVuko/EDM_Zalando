@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 
 import zalando.classifier.pipes.BPPipe;
 import zalando.classifier.pipes.ManualWordpressPipe;
+import zalando.classifier.pipes.RssPipe;
 
 public class Classifier implements Runnable{
 	private MyBlockingQueue inputQueue;
@@ -71,9 +72,11 @@ public class Classifier implements Runnable{
 			{
 				ManualWordpressPipe mwp = new ManualWordpressPipe(urlFromRaw, htmlFromRaw);
 				JSONObject result = mwp.process();
-				result.put("selector", selector);
 				if(result != null)
+				{
+					result.put("selector", selector);
 					outputQueue.put(result);
+				}
 				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
 				manualWPPipeCounter.add(urlFromRaw);
 				break;
@@ -88,8 +91,19 @@ public class Classifier implements Runnable{
 				tumblrPipeCounter.add(urlFromRaw);
 				break;
 			}
+			case "rssBlogger":
 			case "rss":
+			{
+				boolean isBlogger = !selector.equalsIgnoreCase("rss");
+				RssPipe rp = new RssPipe(urlFromRaw, isBlogger);
+				JSONObject result = rp.process();
+				
+				if (result != null) {
+					result.put("selector", selector);
+					outputQueue.put(result);
+				}
 				break;
+			}
 			default:
 			{
 				//anstatt in der pipe jedes JSONObj zu schreiben, geben wir es in den Classifier
