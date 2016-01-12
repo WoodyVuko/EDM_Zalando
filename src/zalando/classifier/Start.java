@@ -23,8 +23,8 @@ public class Start {
 		// TODO Auto-generated method stub
 		
 		String everything = null;
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final.json")), "UTF8"))) {
-//		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final_rss.json")), "UTF8"))) {
+//		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final.json")), "UTF8"))) {
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("files/gold/final_rss.json")), "UTF8"))) {
 		    StringBuilder sb = new StringBuilder();
 		    String line = br.readLine();
 

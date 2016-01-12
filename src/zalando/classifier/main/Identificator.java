@@ -2,12 +2,11 @@ package zalando.classifier.main;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -19,14 +18,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NodeType;
-
-import it.sauronsoftware.feed4j.FeedIOException;
-import it.sauronsoftware.feed4j.FeedParser;
-import it.sauronsoftware.feed4j.FeedXMLParseException;
-import it.sauronsoftware.feed4j.UnsupportedFeedException;
-import it.sauronsoftware.feed4j.bean.Feed;
-import it.sauronsoftware.feed4j.bean.FeedItem;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 
 public class Identificator {
 	
@@ -132,19 +127,24 @@ public class Identificator {
 				}
 			}
 		}
-//		try {
-//			URI feedURI = this.getRssURI(new URI(strings[0]), isBlogger);
-//			//boolean feed = this.checkForRssAvailability(feedURI, new URI(strings[0]));
-//			boolean feed = false;
+		
+		
+		try {
+			RssChecker checker = new RssChecker(new URI(strings[0]), isBlogger);
+			boolean feed = checker.rssFeedAvailable();
+			
 //			if (feed) {
-//				ident = "rss";
+				ident = "rss";
+				if (this.isBlogger) {
+					ident = "rssBlogger";
+				}
 //			}
-//			
-//		} catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
+			
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		if (ident.equalsIgnoreCase("")) {
 			ident = "default";
 		}
@@ -250,16 +250,17 @@ public class Identificator {
 		}
 		
 		try {
-			Feed feed = FeedParser.parse(feedURL.toURL());
-			for (int i = 0; i < feed.getItemCount(); i++) {
-				FeedItem item = feed.getItem(i);
-				if (item.getLink().toURI().equals(postURL)) {
-					if (item.getDescriptionAsHTML().contains(postURL.toString()) ||
-						item.getDescriptionAsHTML().contains("&#8230;") ||
-						item.getDescriptionAsHTML().contains("&hellip;")) {
-						return false;
-					}
-					if (item.getDescriptionAsText().equalsIgnoreCase("")) {
+			
+			SyndFeedInput input = new SyndFeedInput();
+			SyndFeed feed2 = input.build(new XmlReader(feedURL.toURL()));
+			for (Iterator<SyndEntry> iterator = feed2.getEntries().iterator(); iterator.hasNext();) {
+				SyndEntry item = iterator.next();
+				if (new URI(item.getLink()).equals(postURL)) {
+					String content = item.getDescription().toString();
+					if (content.contains(postURL.toString()) ||
+						content.contains("&#8230;") ||
+						content.contains("&hellip;") ||
+						content.equalsIgnoreCase("")) {
 						return false;
 					}
 					return true;

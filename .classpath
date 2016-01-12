@@ -10,7 +10,10 @@
 	<classpathentry kind="lib" path="lib/java-string-similarity-0.13.jar"/>
 	<classpathentry kind="lib" path="lib/jdom2-2.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/feed4j.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry kind="lib" path="lib/rome-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/rome-utils-1.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
