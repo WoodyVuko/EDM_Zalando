@@ -6,8 +6,10 @@ import java.util.concurrent.TimeUnit;
 import org.json.simple.JSONObject;
 
 import zalando.classifier.pipes.BPPipe;
+import zalando.classifier.pipes.BloggerPipe;
 import zalando.classifier.pipes.ManualWordpressPipe;
 import zalando.classifier.pipes.RssPipe;
+import zalando.classifier.pipes.TumblePipe;
 
 public class Classifier implements Runnable{
 	private MyBlockingQueue inputQueue;
@@ -83,12 +85,24 @@ public class Classifier implements Runnable{
 			}
 			case "blogger":
 			{
-				bloggerPipeCounter.add(urlFromRaw);
+				BloggerPipe blogger_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw, selector, filename);
+				JSONObject result = blogger_pipe.process();
+				result.put("selector", selector);
+				if(result != null){
+					outputQueue.put(result);
+					bloggerPipeCounter.add(urlFromRaw);
+				}
 				break;
 			}
 			case "tumblr":
 			{
-				tumblrPipeCounter.add(urlFromRaw);
+				TumblePipe blogger_pipe = new TumblePipe(urlFromRaw, htmlFromRaw, selector, filename);
+				JSONObject result = blogger_pipe.process();
+				result.put("selector", selector);
+				if(result != null){
+					outputQueue.put(result);
+					tumblrPipeCounter.add(urlFromRaw);
+				}
 				break;
 			}
 			case "rssBlogger":
@@ -111,6 +125,7 @@ public class Classifier implements Runnable{
 				//er schreibt es in die OutputQueue. 
 				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
 				JSONObject result = bp_pipe.process();
+				result.put("selector", selector);
 				if(result != null){
 					outputQueue.put(result);
 					defaultPipeCounter.add(urlFromRaw);

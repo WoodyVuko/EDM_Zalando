@@ -60,20 +60,38 @@ public class Identificator {
 		
 	}
 	public boolean isBlogger = false;
-	 
+	public boolean isWP = false;
+	
 	public String evaluate(String...strings){
 		
 		String ident = "";
 		
-		for (String element : strings) {
-			for (Pattern pat : WordPress_PatternArrayList) {
-				if (pat.matcher(element).find()){
-					ident = "manual_wordpress";
-					break;
+//		for (String element : strings) {
+//			for (Pattern pat : WordPress_PatternArrayList) {
+//				if (pat.matcher(element).find()){
+//					ident = "manual_wordpress";
+//					break;
+//				}
+//			}
+//		}
+		if (ident.equalsIgnoreCase("")) {
+			int wpCount = 0;
+			for (String element : strings) {
+				for (Pattern pat : WordPress_PatternArrayList) {
+					
+					while (pat.matcher(element).find()){
+						wpCount++;
+						if (wpCount >= 10){
+							isWP = true;
+							ident = "manual_wordpress";
+							break;
+					}
+						
+
+					}
 				}
 			}
 		}
-		
 		if (ident.equalsIgnoreCase("")) {
 			int bloggrCount = 0;
 			for (String element : strings) {
@@ -92,7 +110,6 @@ public class Identificator {
 				}
 			}
 		}
-		
 		if (ident.equalsIgnoreCase("")) {
 			int tumblrCount = 0;
 			for (String element : strings) {
