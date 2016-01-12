@@ -16,7 +16,7 @@ import zalando.classifier.Start;
 import zalando.classifier.main.SimilarityUtil;
 
 public class TumblePipe {
-
+	
 	private String url;
 	private String html;
 	private String selector;
@@ -25,7 +25,7 @@ public class TumblePipe {
 	public TumblePipe(String...strings) {
 		super();
 		// TODO Auto-generated constructor stub
-		System.err.println("Default Pipe active");
+		System.err.println("manual Tumblr Pipe active");
 		this.url = strings[0];
 		this.html = strings[1];
 		this.selector = strings[2];
