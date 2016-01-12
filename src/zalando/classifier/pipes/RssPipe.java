@@ -33,9 +33,6 @@ public class RssPipe {
 	{	
 		try {
 			RssChecker checker = new RssChecker(new URI(this.url), this.isBlogger);
-			if (this.url.contains("bryanboy")) {
-				System.out.println();
-			}
 			SyndEntry content = checker.getContent();
 			
 			DOMParser parser = new DOMParser();

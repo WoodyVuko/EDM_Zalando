@@ -86,6 +86,7 @@ public class Start {
 		{
 			JSONObject obj = (JSONObject)object;
 			goldCopy.put(obj.get("source").toString(), (JSONObject)obj.get("gold"));
+			
 		}
 		Start.gold = goldCopy;
 	}

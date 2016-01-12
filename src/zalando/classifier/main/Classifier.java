@@ -1,8 +1,13 @@
 package zalando.classifier.main;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 
 import zalando.classifier.pipes.BPPipe;
@@ -23,6 +28,7 @@ public class Classifier implements Runnable{
 		this.name = name;
 		this.inputQueue = inputQueue;
 		this.outputQueue = outputQueue;
+		
 	}
 
 	public void init(){
@@ -59,7 +65,19 @@ public class Classifier implements Runnable{
 			System.err.println(this.name + ": Taking Item form Q for processing");
 			
 			String urlFromRaw = obj.get("url").toString();
-			String htmlFromRaw = obj.get("html").toString();			
+			String htmlFromRaw = obj.get("html").toString();	
+			if (htmlFromRaw.isEmpty()) {
+				HttpURLConnection httpcon;
+				try {
+					httpcon = (HttpURLConnection) new URL(urlFromRaw).openConnection();
+					httpcon.addRequestProperty("User-Agent", "Mozilla/4.0");
+					htmlFromRaw = IOUtils.toString(httpcon.getInputStream());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    
+			}
 			String selector = identificator.evaluate(urlFromRaw, htmlFromRaw);
 			String filename = ++counter + this.name;
 			

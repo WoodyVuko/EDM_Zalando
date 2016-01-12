@@ -57,12 +57,14 @@ public class Identificator {
 		
 		//TUMBLER PATTERN
 		Tumbl_PatternArrayList.add(tumblr_main1);
-		
 	}
-	public boolean isBlogger = false;
-	public boolean isWP = false;
+	public boolean isBlogger;
+	public boolean isWP;
 	
 	public String evaluate(String...strings){
+		
+		isBlogger = false;
+		isWP = false;
 		
 		String ident = "";
 		
@@ -74,12 +76,15 @@ public class Identificator {
 //				}
 //			}
 //		}
+		if (strings[0].contains("whatiwore.tumblr.com")) {
+			System.out.println();
+		}
 		if (ident.equalsIgnoreCase("")) {
 			int wpCount = 0;
 			for (String element : strings) {
 				for (Pattern pat : WordPress_PatternArrayList) {
 					
-					while (pat.matcher(element).find()){
+					while (pat.matcher(element).find() && ident.equalsIgnoreCase("")){
 						wpCount++;
 						if (wpCount >= 10){
 							isWP = true;
@@ -97,7 +102,7 @@ public class Identificator {
 			for (String element : strings) {
 				for (Pattern pat : Blogger_PatternArrayList) {
 					
-					while (pat.matcher(element).find()){
+					while (pat.matcher(element).find() && ident.equalsIgnoreCase("")){
 						bloggrCount++;
 						if (bloggrCount >= 10){
 							isBlogger = true;
@@ -115,7 +120,7 @@ public class Identificator {
 			for (String element : strings) {
 				for (Pattern pat : Tumbl_PatternArrayList) {
 					
-					while (pat.matcher(element).find()){
+					while (pat.matcher(element).find() && ident.equalsIgnoreCase("")){
 						tumblrCount++;
 						if (tumblrCount >= 10){
 							ident = "tumblr";
