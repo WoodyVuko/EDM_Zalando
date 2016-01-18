@@ -67,18 +67,7 @@ public class Identificator {
 		isWP = false;
 		
 		String ident = "";
-		
-//		for (String element : strings) {
-//			for (Pattern pat : WordPress_PatternArrayList) {
-//				if (pat.matcher(element).find()){
-//					ident = "manual_wordpress";
-//					break;
-//				}
-//			}
-//		}
-		if (strings[0].contains("whatiwore.tumblr.com")) {
-			System.out.println();
-		}
+
 		if (ident.equalsIgnoreCase("")) {
 			int wpCount = 0;
 			for (String element : strings) {
@@ -122,7 +111,7 @@ public class Identificator {
 					
 					while (pat.matcher(element).find() && ident.equalsIgnoreCase("")){
 						tumblrCount++;
-						if (tumblrCount >= 10){
+						if (tumblrCount >= 20){
 							ident = "tumblr";
 							break;
 					}
@@ -138,12 +127,12 @@ public class Identificator {
 			RssChecker checker = new RssChecker(new URI(strings[0]), isBlogger);
 			boolean feed = checker.rssFeedAvailable();
 			
-//			if (feed) {
+			if (feed) {
 				ident = "rss";
 				if (this.isBlogger) {
 					ident = "rssBlogger";
 				}
-//			}
+			}
 			
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
