@@ -50,7 +50,11 @@ public class ManualWordpressPipe {
 		try {
 			parser.parse(is);
 			Node doc = parser.getDocument();
+			if (this.url.contains("thefashionguitar")) {
+				System.out.println("test here");
+			}
 			doc = this.getNodesOfInterest(doc);
+			System.out.println(doc);
 			removeTags(doc);
 			
 			//COMPARING START
@@ -68,7 +72,7 @@ public class ManualWordpressPipe {
 			if (titlePipe == null) {
 				titlePipe = "";
 			}
-			//toDO nicht alle unprintable Sachen löschen evtl, Linebreaks
+			//toDO nicht alle unprintable Sachen lï¿½schen evtl, Linebreaks
 			JSONObject obj = new JSONObject();
 			NormalizedLevenshtein nls = new NormalizedLevenshtein();
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
@@ -99,7 +103,7 @@ public class ManualWordpressPipe {
 
 
 
-			
+			System.out.println("-----");
 			return obj;
 //			try {
 //				FileUtils.writeStringToFile(file, obj.toJSONString());
@@ -129,47 +133,92 @@ public class ManualWordpressPipe {
 	//toDo find more matches to make result better
 	//check Images
 	//
-	private Node getNodesOfInterest(Node node)
+	private Node getPostBodyNode(Node node)
 	{
+		Pattern p = Pattern.compile("(post|entry|main)?[-_]?(content|body)", Pattern.CASE_INSENSITIVE);
 		if (node.getNodeName().equalsIgnoreCase("div") || node.getNodeName().equalsIgnoreCase("article")) {
 			NamedNodeMap atts = node.getAttributes();
-			Node noi = null;
 			for (int i = 0; i < atts.getLength(); i++) {
 				Object att = atts.item(i);
 				if (att instanceof AttrNSImpl) {
 					AttrNSImpl realAtt = (AttrNSImpl)att;
 					if (realAtt.getName().equalsIgnoreCase("id") ||
-						realAtt.getName().equalsIgnoreCase("class")) {
-						Pattern p = Pattern.compile("(post|article)[-_]\\d+", Pattern.CASE_INSENSITIVE);
-						Pattern p2 = Pattern.compile("(post|entry|main)[-_]?(content|body)", Pattern.CASE_INSENSITIVE);
-						if (p.matcher(realAtt.getValue()).matches()) {
-							noi = node;
-							break;
-						}
-						//if post or article found try to find a id or class
-						if (p2.matcher(realAtt.getValue()).find()) {
+						realAtt.getName().equalsIgnoreCase("class")) 
+					{
+						if (p.matcher(realAtt.getValue()).matches()) 
+						{
 							return node;
 						}
 					}
 				}
 			}
-			if (noi != null) {
-				Node childNoi = noi.getFirstChild();
-				while (childNoi != null) {
-					Node foundNoiInChild = this.getNodesOfInterest(childNoi);
-					if (foundNoiInChild != null) {
-						return foundNoiInChild;
-					}
-					childNoi = childNoi.getNextSibling();
-				}
+		}
+		Node child = node.getFirstChild();
+        while (child != null) {
+            Node noi = this.getPostBodyNode(child);
+            if (noi != null) {
 				return noi;
 			}
+            child = child.getNextSibling();
+        }
+        return null;
+	}
+	
+	private Node getArticleIdNode(Node node)
+	{
+		Pattern p = Pattern.compile("(post|article)[-_]\\d+", Pattern.CASE_INSENSITIVE);
+		if (node.getNodeName().equalsIgnoreCase("div") || node.getNodeName().equalsIgnoreCase("article"))
+        {
+        	NamedNodeMap atts = node.getAttributes();
+			for (int i = 0; i < atts.getLength(); i++) 
+			{
+				Object att = atts.item(i);
+				if (att instanceof AttrNSImpl) 
+				{
+					AttrNSImpl realAtt = (AttrNSImpl)att;
+					if (realAtt.getName().equalsIgnoreCase("id") ||
+						realAtt.getName().equalsIgnoreCase("class")) 
+					{
+						if (p.matcher(realAtt.getValue()).matches()) 
+						{
+							return node;
+						}
+					}
+				}
+			}
+        }
+        Node child = node.getFirstChild();
+        while (child != null) {
+            Node noi = this.getArticleIdNode(child);
+            if (noi != null) {
+				return noi;
+			}
+            child = child.getNextSibling();
+        }
+        return null;
+	}
+	
+	private Node getNodesOfInterest(Node node)
+	{
+		Node articleIdNode = getArticleIdNode(node);
+		Node postBodyNode = null;
+		if (articleIdNode != null) {
+			postBodyNode = getPostBodyNode(articleIdNode);
+			if (postBodyNode != null)
+				return postBodyNode;
+			else
+				return articleIdNode;
 		}
-		
-		Node noi = null;
+		else
+		{
+			postBodyNode = getPostBodyNode(node);
+			System.out.println("article not found");
+			if (postBodyNode != null) 
+				return postBodyNode;
+		}
 		Node child = node.getFirstChild();
 		while (child != null) {
-			noi = this.getNodesOfInterest(child);
+			Node noi = this.getNodesOfInterest(child);
 			if (noi != null) {
 				return noi;
 			}

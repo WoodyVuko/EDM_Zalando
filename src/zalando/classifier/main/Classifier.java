@@ -49,7 +49,6 @@ public class Classifier implements Runnable{
 	}
 	public ArrayList<String> manualWPPipeCounter = new ArrayList<String>();
 	public ArrayList<String> bloggerPipeCounter = new ArrayList<String>();
-	public ArrayList<String> tumblrPipeCounter = new ArrayList<String>();
 	public ArrayList<String> defaultPipeCounter = new ArrayList<String>();
 	
 	public void process() throws InterruptedException{
@@ -112,17 +111,6 @@ public class Classifier implements Runnable{
 				}
 				break;
 			}
-			case "tumblr":
-			{
-				TumblePipe blogger_pipe = new TumblePipe(urlFromRaw, htmlFromRaw, selector, filename);
-				JSONObject result = blogger_pipe.process();
-				result.put("selector", selector);
-				if(result != null){
-					outputQueue.put(result);
-					tumblrPipeCounter.add(urlFromRaw);
-				}
-				break;
-			}
 			case "rssBlogger":
 			case "rss":
 			{
@@ -156,6 +144,5 @@ public class Classifier implements Runnable{
 		System.out.println("Default: " +defaultPipeCounter.size());
 		System.out.println("Wordpress: " +manualWPPipeCounter.size());
 		System.out.println("Blogger: " +bloggerPipeCounter.size());
-		System.out.println("Tumblr: " +tumblrPipeCounter.size());
 	}
 }
