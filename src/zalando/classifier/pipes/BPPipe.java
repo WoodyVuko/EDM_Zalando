@@ -18,8 +18,6 @@ public class BPPipe {
 	
 	private String url;
 	private String html;
-	private String selector;
-	private String filename;
 	
 	public BPPipe(String...strings) {
 		super();
@@ -27,8 +25,6 @@ public class BPPipe {
 		System.err.println("Default Pipe active");
 		this.url = strings[0];
 		this.html = strings[1];
-		this.selector = strings[2];
-		this.filename = strings[3];
 		this.process();
 	}
 

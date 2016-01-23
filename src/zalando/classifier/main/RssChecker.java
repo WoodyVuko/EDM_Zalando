@@ -112,9 +112,10 @@ public class RssChecker {
 					hostUrl = new URI(this.postUri.getScheme() + "://" + this.postUri.getHost());
 				}
 				DOMParser parser = new DOMParser();
+				
 				HttpURLConnection httpcon = (HttpURLConnection) hostUrl.toURL().openConnection();
-			    httpcon.addRequestProperty("User-Agent", "Mozilla/4.0");
-				String html = IOUtils.toString(httpcon.getInputStream());
+			    httpcon.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+			    String html = IOUtils.toString(httpcon.getInputStream());
 				InputSource is = new InputSource(new StringReader(html));
 				parser.parse(is);
 				Node doc = parser.getDocument();

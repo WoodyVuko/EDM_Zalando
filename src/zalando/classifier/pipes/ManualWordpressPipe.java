@@ -54,7 +54,9 @@ public class ManualWordpressPipe {
 				System.out.println("test here");
 			}
 			doc = this.getNodesOfInterest(doc);
-			System.out.println(doc);
+			if (doc == null) {
+				return null;
+			}
 			removeTags(doc);
 			
 			//COMPARING START
@@ -100,8 +102,6 @@ public class ManualWordpressPipe {
 				obj.put("gold", goldObj);
 				obj.put("similarity", simObj);
 			}
-
-
 
 			System.out.println("-----");
 			return obj;
@@ -212,7 +212,6 @@ public class ManualWordpressPipe {
 		else
 		{
 			postBodyNode = getPostBodyNode(node);
-			System.out.println("article not found");
 			if (postBodyNode != null) 
 				return postBodyNode;
 		}

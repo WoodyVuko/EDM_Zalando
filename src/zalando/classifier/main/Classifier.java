@@ -28,11 +28,11 @@ public class Classifier implements Runnable{
 		this.name = name;
 		this.inputQueue = inputQueue;
 		this.outputQueue = outputQueue;
-		
+
 	}
 
 	public void init(){
-		
+
 	}
 
 	@Override
@@ -50,7 +50,9 @@ public class Classifier implements Runnable{
 	public ArrayList<String> manualWPPipeCounter = new ArrayList<String>();
 	public ArrayList<String> bloggerPipeCounter = new ArrayList<String>();
 	public ArrayList<String> defaultPipeCounter = new ArrayList<String>();
-	
+	public ArrayList<String> rssPipeCounter = new ArrayList<String>();
+	public ArrayList<String> rssBloggerPipeCounter = new ArrayList<String>();
+
 	public void process() throws InterruptedException{
 		for(;;){
 			JSONObject obj = inputQueue.poll(5, TimeUnit.SECONDS);
@@ -62,7 +64,7 @@ public class Classifier implements Runnable{
 				break;
 			}
 			System.err.println(this.name + ": Taking Item form Q for processing");
-			
+
 			String urlFromRaw = obj.get("url").toString();
 			String htmlFromRaw = obj.get("html").toString();	
 			if (htmlFromRaw.isEmpty()) {
@@ -75,39 +77,39 @@ public class Classifier implements Runnable{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			    
+
 			}
 			String selector = identificator.evaluate(urlFromRaw, htmlFromRaw);
-			String filename = ++counter + this.name;
-			
+
 			switch (selector) {
-//			case "wordpress":
-//				new WordpressPipe(urlFromRaw, htmlFromRaw);
-//				break;
-//			case "blogger":
-//				new BloggerPipe(urlFromRaw, htmlFromRaw);
-//				break;
 			case "manual_wordpress":
 			{
 				ManualWordpressPipe mwp = new ManualWordpressPipe(urlFromRaw, htmlFromRaw);
 				JSONObject result = mwp.process();
+				
 				if(result != null)
 				{
 					result.put("selector", selector);
 					outputQueue.put(result);
+					manualWPPipeCounter.add(urlFromRaw);
 				}
-				new BPPipe(urlFromRaw, htmlFromRaw, selector, filename+"_compare_mwp");
-				manualWPPipeCounter.add(urlFromRaw);
+				else {
+					this.defaultPipeProcess(urlFromRaw, htmlFromRaw);
+				}
 				break;
 			}
 			case "blogger":
 			{
-				BloggerPipe blogger_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw, selector, filename);
+				BloggerPipe blogger_pipe = new BloggerPipe(urlFromRaw, htmlFromRaw);
 				JSONObject result = blogger_pipe.process();
-				result.put("selector", selector);
+				
 				if(result != null){
+					result.put("selector", selector);
 					outputQueue.put(result);
 					bloggerPipeCounter.add(urlFromRaw);
+				}
+				else {
+					this.defaultPipeProcess(urlFromRaw, htmlFromRaw);
 				}
 				break;
 			}
@@ -117,10 +119,18 @@ public class Classifier implements Runnable{
 				boolean isBlogger = !selector.equalsIgnoreCase("rss");
 				RssPipe rp = new RssPipe(urlFromRaw, isBlogger);
 				JSONObject result = rp.process();
-				
+
 				if (result != null) {
 					result.put("selector", selector);
 					outputQueue.put(result);
+					if (isBlogger) {
+						rssBloggerPipeCounter.add(urlFromRaw);
+					} else {
+						rssPipeCounter.add(urlFromRaw);
+					}
+				}
+				else {
+					this.defaultPipeProcess(urlFromRaw, htmlFromRaw);
 				}
 				break;
 			}
@@ -129,20 +139,33 @@ public class Classifier implements Runnable{
 				//anstatt in der pipe jedes JSONObj zu schreiben, geben wir es in den Classifier
 				//zurueck, damit der das schreibt, weil er asyncron alle processed Objs kriegen soll
 				//er schreibt es in die OutputQueue. 
-				BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw, selector, filename);
-				JSONObject result = bp_pipe.process();
-				result.put("selector", selector);
-				if(result != null){
-					outputQueue.put(result);
-					defaultPipeCounter.add(urlFromRaw);
-				}
+				this.defaultPipeProcess(urlFromRaw, htmlFromRaw);
 				break;
 			}
 			} 
-			
+
 		}
 		System.out.println("Default: " +defaultPipeCounter.size());
 		System.out.println("Wordpress: " +manualWPPipeCounter.size());
 		System.out.println("Blogger: " +bloggerPipeCounter.size());
+		System.out.println("RSS: " +rssPipeCounter.size());
+		System.out.println("RSS Blogger: " +rssBloggerPipeCounter.size());
+	}
+
+	private void defaultPipeProcess(String urlFromRaw, String htmlFromRaw)
+	{
+		try {
+			BPPipe bp_pipe = new BPPipe(urlFromRaw, htmlFromRaw);
+			JSONObject result = bp_pipe.process();
+			
+			if(result != null){
+				result.put("selector", "default");
+				this.outputQueue.put(result);	
+				defaultPipeCounter.add(urlFromRaw);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
