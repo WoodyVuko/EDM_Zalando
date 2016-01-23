@@ -88,7 +88,6 @@ public class Identificator {
 		}
 
 
-		System.out.println("url: " + strings[0]);
 		if (wpCount >= bloggrCount){
 			isWP = true;
 			ident = "manual_wordpress";

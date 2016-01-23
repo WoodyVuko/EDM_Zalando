@@ -14,7 +14,6 @@ import zalando.classifier.pipes.BPPipe;
 import zalando.classifier.pipes.BloggerPipe;
 import zalando.classifier.pipes.ManualWordpressPipe;
 import zalando.classifier.pipes.RssPipe;
-import zalando.classifier.pipes.TumblePipe;
 
 public class Classifier implements Runnable{
 	private MyBlockingQueue inputQueue;

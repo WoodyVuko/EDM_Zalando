@@ -22,6 +22,14 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
+
+/**
+ * Der RssChecker prüft anhand einer übergebenen URL ob der Blogeintrag noch im RSS-Feed
+ * vorhanden ist und lädt den entspechenden Eintrag aus dem Feed.
+ * 
+ * @author Carsten
+ *
+ */
 public class RssChecker {
 	
 	private URI postUri;
@@ -41,6 +49,13 @@ public class RssChecker {
 		this.feedContent = null;
 	}
 	
+	/**
+	 * Dient der Überprüfung, ob unter der URL ein RSS-Feed gefunden werden kann
+	 * und falls ja, ob der Blogeintrag im Feed vorhanden ist. Wenn er vorhanden ist,
+	 * wird außerdem das Item zur Verfügung gestellt.
+	 * 
+	 * @return true wenn der Blogeintrag im Feed vorhanden ist, sonst false
+	 */
 	public boolean rssFeedAvailable()
 	{
 		if (!this.checkedForAvailable) {
@@ -57,6 +72,9 @@ public class RssChecker {
 					SyndEntry item = iterator.next();
 					if (new URI(item.getLink()).equals(this.postUri)) {
 						String content = null;
+						//Falls das item sowohl "description" als auch "contents" enthält,
+						//sollte "contents" gewählt werden, da dort meist der komplette html code des Eintrags
+						//enthalten ist.
 						if (item.getContents().size() > 0) {
 							content = item.getContents().get(0).getValue();
 						} else if (item.getDescription() != null) {
@@ -67,6 +85,11 @@ public class RssChecker {
 							this.feedAvailable = false;
 							break;
 						}
+						
+						//Manche Feeds liefern den Inhalt nur in gekürzter Form aus,
+						//weshalb nach Möglichkeiten gesucht werden sollte,
+						//die trotzdem den vollen Feed erzeugen können
+						
 //						if (content.contains(this.postUri.toString()) ||
 //							content.contains("&#8230;") ||
 //							content.contains("&hellip;") ||
@@ -98,6 +121,10 @@ public class RssChecker {
 		return this.feedContent;
 	}
 	
+	/**
+	 * Diese methode ermittelt die RSS-Feed URI, indem der Link zerlegt wird,
+	 * die Landingpage des Blogs geladen wird und anschließend das Rss-Tag gesucht wird.
+	 */
 	private void findFeedUri()
 	{
 		if (!this.checkedForAvailable) {
@@ -105,6 +132,7 @@ public class RssChecker {
 			
 			try {
 				URI hostUrl;
+				//falls der link kein Scheme enthält, wird http verwendet
 				if (this.postUri.getScheme() == null) {
 					hostUrl = new URI("http://" + this.postUri.getHost());
 				}
@@ -114,7 +142,8 @@ public class RssChecker {
 				DOMParser parser = new DOMParser();
 				
 				HttpURLConnection httpcon = (HttpURLConnection) hostUrl.toURL().openConnection();
-			    httpcon.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+			    //Manche Blogs liefern kein Ergebnis, wenn kein User-Agent gesetzt ist.
+				httpcon.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
 			    String html = IOUtils.toString(httpcon.getInputStream());
 				InputSource is = new InputSource(new StringReader(html));
 				parser.parse(is);
@@ -138,6 +167,15 @@ public class RssChecker {
 		}
 	}
 	
+	
+	/**
+	 * Diese Methode durchsucht den HTML-Node nach link-Tags und versucht den Rss-Alternate-Lionk zu finden.
+	 * Blogger besitzt einen speziellen Rss-Link, weshalb nach Blogger und nicht Blogger unterschieden wird.
+	 * 
+	 * @param node der zu durchsuchende Node
+	 * @param isBlogger flag ob der Blog das CMS Blogger nutzt, sollte vom Classifier gesetzt werden
+	 * @return den gefunden Node oder null
+	 */
 	private Node findRSSNode(Node node, boolean isBlogger)
 	{
 		Node child = node.getFirstChild();
@@ -149,6 +187,7 @@ public class RssChecker {
 		}
         while (child != null) {
         	
+        	//da wir nach dem RSS suchen sind lediglich link-Tags von relevanz
         	if(child.getNodeName().equalsIgnoreCase("link")) {
         		NamedNodeMap atts = child.getAttributes();
         		if (atts != null) {
@@ -171,16 +210,13 @@ public class RssChecker {
     								isRSS = true;
     								continue;
     						}
+        					//Viele Blogs liefern auch Feeds zu den Kommentaren,
+        					//dieser muss abgefangen werden
         					if (realAtt.getName().equalsIgnoreCase("title") && 
                 				realAtt.getValue().toLowerCase().contains("comment")) {
         							isWrong = true;
         							continue;
         					}
-//        					if (realAtt.getName().equalsIgnoreCase("href") && 
-//                    			realAtt.getValue().toLowerCase().contains("atom")) {
-//            						isWrong = true;
-//            						continue;
-//            					}
         				}
         			}
         			if (isRSS && isAlternate && !isWrong) {

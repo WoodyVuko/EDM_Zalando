@@ -16,6 +16,14 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
 import zalando.classifier.main.SimilarityUtil;
 
+/**
+ * @author Carsten
+ *
+ * Die Manualwordpress Pipe sucht nach vorab definierte Tags.
+ * Während der Suche werden ungewollte Tags und Attribute eines Tags entfernt, 
+ * da diese zu Probleme bei der Verarbeitung führen können.
+ *
+ */
 public class ManualWordpressPipe {
 	
 	private String url;
@@ -24,11 +32,18 @@ public class ManualWordpressPipe {
 	private ArrayList<String> unwantedAtts;
 	private ArrayList<Pattern> unwantedCss;
 	
+	
+	/**
+	 * der Konstruktor
+	 * 
+	 * @param url enthält die url zu dem jeweiligen blogeintrag
+	 * @param html der komplette html code des blogeintrags
+	 */
 	public ManualWordpressPipe(String url, String html) {
 		super();
 		this.url = url;
 		this.html = html;
-		// TODO Auto-generated constructor stub
+		
 		System.err.println("Manual Wordpress Pipe active");
 		unwantedTags = new ArrayList<>();
 		unwantedTags.add("script");
@@ -43,6 +58,14 @@ public class ManualWordpressPipe {
 		unwantedCss.add(Pattern.compile(".*comment.*"));
 	}
 	
+	
+	/**
+	 * Process verarbeitet die eigentlichen Daten und erzeugt ein
+	 * JSONObject mit den Vergleichswerten zum Goldstandard.
+	 * 
+	 * 
+	 * @return JSONObject welches extrahierten Text und Titel, die Daten aus dem Goldstandard sowie die Vergleichswerte enthält.
+	 */
 	public JSONObject process()
 	{	
 		DOMParser parser = new DOMParser();
@@ -50,16 +73,16 @@ public class ManualWordpressPipe {
 		try {
 			parser.parse(is);
 			Node doc = parser.getDocument();
-			if (this.url.contains("thefashionguitar")) {
-				System.out.println("test here");
-			}
+			
+			//das durch den DOMParser erstellte Document wird nach den identifizierten Tags durchsucht 
+			//und anschließend werden ungewollte Tags/Attribute aus dem Ergebnis entfernt
 			doc = this.getNodesOfInterest(doc);
+			
 			if (doc == null) {
 				return null;
 			}
-			removeTags(doc);
 			
-			//COMPARING START
+			//Ab hier beginnt der Vergleich mit dem Goldstandard
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
 			{
@@ -89,6 +112,8 @@ public class ManualWordpressPipe {
 				//toDO Collect more Meta Informations
 				//like author, url, domain, date, img-alt-tag think about more
 				//
+				
+				//Das JSONObject wird entsprechend der vorab erzeugten Daten aufgebaut
 				JSONObject pipeObj = new JSONObject();
 				pipeObj.put("title", titlePipe);
 				pipeObj.put("text", docText);
@@ -103,28 +128,10 @@ public class ManualWordpressPipe {
 				obj.put("similarity", simObj);
 			}
 
-			System.out.println("-----");
 			return obj;
-//			try {
-//				FileUtils.writeStringToFile(file, obj.toJSONString());
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-//			doc = this.cleanNode(doc);
-//			
-//			StringWriter sw = new StringWriter();
-//		    Transformer t = TransformerFactory.newInstance().newTransformer();
-//		    t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-//		    t.transform(new DOMSource(doc), new StreamResult(sw));			
-//			String xml = sw.toString();
-//			
-//			new BPPipe(this.url, xml, "manual_wordpress", filename+"_from_mwp");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			System.out.println(this.url);
 			e.printStackTrace();
 		}
 		
@@ -133,10 +140,27 @@ public class ManualWordpressPipe {
 	//toDo find more matches to make result better
 	//check Images
 	//
+	
+	
+	
+	/**
+	 * Diese Methode dient dazu den Node rekursiv zu suchen, der dem RegEx (post|entry|main)?[-_]?(content|body) entspricht.
+	 * Diese Methode sollte nur verwendet werden, um das Ergebnis der getArticleIdNode() Methode zu verbessern.
+	 * Um einen besseren Recall zu erzeugen, wird diese Methode auch genutzt, falls getArticleIdNode() kein Ergebnis liefert.
+	 * 
+	 * 
+	 * @param node der zu durchsuchende Node
+	 * @return der gefundene Node oder Null
+	 */
 	private Node getPostBodyNode(Node node)
 	{
 		Pattern p = Pattern.compile("(post|entry|main)?[-_]?(content|body)", Pattern.CASE_INSENSITIVE);
+		
+		//bei der Analyse der Zalando-Daten stellte sich raus das lediglich div bzw. article Tags von relevanz sind
 		if (node.getNodeName().equalsIgnoreCase("div") || node.getNodeName().equalsIgnoreCase("article")) {
+			
+			//für alle div bzw. article Tags werden die Attribute durchsucht und geprüft ob das id bzw. class
+			//Attribute das RegEx Pattern matcht.
 			NamedNodeMap atts = node.getAttributes();
 			for (int i = 0; i < atts.getLength(); i++) {
 				Object att = atts.item(i);
@@ -153,6 +177,8 @@ public class ManualWordpressPipe {
 				}
 			}
 		}
+		//Falls bisher kein Match für das RegEx Pattern gefunden wurde werden die Kinder des
+		//Nodes durchsucht
 		Node child = node.getFirstChild();
         while (child != null) {
             Node noi = this.getPostBodyNode(child);
@@ -164,11 +190,21 @@ public class ManualWordpressPipe {
         return null;
 	}
 	
+	/**
+	 * Diese Methode dient dazu den Node rekursiv zu suchen, der dem RegEx (post|article)[-_]\\d+ entspricht.
+	 * Bei der Analyse der Zalando-Daten hat sich gezeigt, das man 70% der Wordpress-blogs mit diesem RegEx Pattern 
+	 * abdecken kann.
+	 * 
+	 * @param node der zu durchsuchende Node
+	 * @return der gefundene Node oder Null
+	 */
 	private Node getArticleIdNode(Node node)
 	{
 		Pattern p = Pattern.compile("(post|article)[-_]\\d+", Pattern.CASE_INSENSITIVE);
 		if (node.getNodeName().equalsIgnoreCase("div") || node.getNodeName().equalsIgnoreCase("article"))
         {
+			//für alle div bzw. article Tags werden die Attribute durchsucht und geprüft ob das id bzw. class
+			//Attribute das RegEx Pattern matcht.
         	NamedNodeMap atts = node.getAttributes();
 			for (int i = 0; i < atts.getLength(); i++) 
 			{
@@ -187,6 +223,8 @@ public class ManualWordpressPipe {
 				}
 			}
         }
+		//Falls bisher kein Match für das RegEx Pattern gefunden wurde werden die Kinder des
+		//Nodes durchsucht
         Node child = node.getFirstChild();
         while (child != null) {
             Node noi = this.getArticleIdNode(child);
@@ -198,23 +236,43 @@ public class ManualWordpressPipe {
         return null;
 	}
 	
+	
+	/**
+	 * Diese Methode dient dazu entsprechenden Methoden zur Filterung aufzurufen.
+	 * 
+	 * @param node der Node der durchsucht werden soll
+	 * @return der gefilterterte Node oder null
+	 */
 	private Node getNodesOfInterest(Node node)
 	{
+		//Node finden, der tag enthält, welches 70% aller Wordpress Blogs hat.
 		Node articleIdNode = getArticleIdNode(node);
 		Node postBodyNode = null;
 		if (articleIdNode != null) {
+			//Falls dieses gefunden wurde, versuchen den Content noch zu verfeiern
 			postBodyNode = getPostBodyNode(articleIdNode);
-			if (postBodyNode != null)
+			//gefunden Node säubern und zurückgeben
+			if (postBodyNode != null) {
+				removeTags(postBodyNode);
 				return postBodyNode;
-			else
+			}
+			else {
+				removeTags(articleIdNode);
 				return articleIdNode;
+			}
+				
 		}
 		else
 		{
+			//Falls der aktuelle Blog nicht zu den 70% gehört, versuchen den content trotzdem zu finden
+			//wird nur gemacht um den Recall zu erhöhen
 			postBodyNode = getPostBodyNode(node);
-			if (postBodyNode != null) 
+			if (postBodyNode != null) {
+				removeTags(postBodyNode);
 				return postBodyNode;
+			}
 		}
+		//Solange rekursiv suchen, bis ein node gefunden wurde oder null zurückgeben, falls nichts vorhanden ist
 		Node child = node.getFirstChild();
 		while (child != null) {
 			Node noi = this.getNodesOfInterest(child);
@@ -226,6 +284,11 @@ public class ManualWordpressPipe {
 		return null;
 	}
 	
+	/**
+	 * Die Methode erzeugt aus der URL den Titel
+	 * 
+	 * @return Titel des Blogs
+	 */
 	private String getTitleFromUrl()
 	{
 		String[] parts = this.url.split("/");
@@ -240,10 +303,16 @@ public class ManualWordpressPipe {
 		return lastPart.trim();
 	}
 	
+	
+	/**
+	 * Diese Methode dient dazu, Tags und Attribute aus einem Node zu entfernen, 
+	 * die ungewollt sind bzw. Probleme bei der weiteren Verarbeitung machen
+	 * 
+	 * @param node Node aus dem Tags entfernt werden sollen
+	 */
 	private void removeTags(Node node)
 	{
 		if(node != null){
-			boolean deleteNode = false;
 			NamedNodeMap atts = node.getAttributes();
 			if (atts != null) {
 				for (int i = 0; i < atts.getLength(); i++) {
@@ -265,10 +334,6 @@ public class ManualWordpressPipe {
 		if (this.unwantedTags.contains(node.getNodeName().toLowerCase())) {
 			node.setTextContent("");
 		}
-		if (deleteNode) {
-			node = null;
-			return;
-		}
 		Node child = node.getFirstChild();
         while (child != null) {
         	removeTags(child);
@@ -277,6 +342,11 @@ public class ManualWordpressPipe {
 		}
 	}
 	
+	/**
+	 * Dient dazu alle Nachfolger zu löschen, um so das Ergebnis zu verfeinern.
+	 * 
+	 * @param node Der Node dessen Nachfolger entfernt werden sollen
+	 */
 	private void removeSiblings(Node node)
 	{
 		Node sib = node.getNextSibling();
@@ -285,35 +355,4 @@ public class ManualWordpressPipe {
 		}
 		node.getParentNode().removeChild(node);
 	}
-		
-	private Node cleanNode(Node node)
-	{
-		NamedNodeMap atts = node.getAttributes();
-		if (atts != null) {
-			for (int i = 0; i < atts.getLength(); i++) {
-				Object att = atts.item(i);
-				if (att instanceof AttrNSImpl) {
-					AttrNSImpl realAtt = (AttrNSImpl)att;
-					if (realAtt.getName().contains(":")) {
-						atts.removeNamedItem(realAtt.getName());
-					}
-				}
-			}
-		}
-        Node child = node.getFirstChild();
-        while (child != null) {
-        	cleanNode(child);
-            child = child.getNextSibling();
-        }
-		return node;
-	}
-	
-	public static void print(Node node, String indent) {
-        System.out.println(indent+node.getClass().getName()+"-"+node.getNodeName());
-        Node child = node.getFirstChild();
-        while (child != null) {
-            print(child, indent+" ");
-            child = child.getNextSibling();
-        }
-    }
 }

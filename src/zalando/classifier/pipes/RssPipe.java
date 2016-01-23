@@ -18,6 +18,14 @@ import zalando.classifier.Start;
 import zalando.classifier.main.RssChecker;
 import zalando.classifier.main.SimilarityUtil;
 
+/**
+ * @author Carsten
+ *
+ * Die RssPipe dient dazu für eine übergebene URL zu prüfen,
+ * ob der Blogeintrag im RSS Feed gefunden werden kann und
+ * gibt den Inhalt dafür zurück.
+ *
+ */
 public class RssPipe {
 	
 	private String url;
@@ -27,8 +35,20 @@ public class RssPipe {
 		super();
 		this.url = url;
 		this.isBlogger = isBlogger;
+		if (isBlogger)
+			System.err.println("Rss Blogger Pipe active");
+		else
+			System.err.println("Rss Pipe active");
 	}
 	
+	/**
+	 * Process verarbeitet die Daten die sie vom RssChecker erhält.
+	 * Für die Auswahl des Inhalts gilt folgende Regel:
+	 * Falls content:encoded im item vorhanden ist, wird dies genommen,
+	 * wenn nicht dann wird die description gewählt.
+	 * 
+	 * @return JSONObject JSONObject welches extrahierten Text und Titel, die Daten aus dem Goldstandard sowie die Vergleichswerte enthält.
+	 */
 	public JSONObject process()
 	{	
 		try {
@@ -47,6 +67,9 @@ public class RssPipe {
 			Node doc = parser.getDocument();
 			String docText = doc.getFirstChild().getTextContent();
 			
+			//Ab hier beginnt der Vergleich mit dem Goldstandard,
+			//um hier weiter debuggen zu können, müssen aktuelle Daten im RSS-Goldstandard vorhanden sein, 
+			//die noch im RSS Feed des jeweiligen Blogs sind. 
 			JSONObject goldObj = Start.gold.get(this.url);
 			if (goldObj == null) 
 			{
