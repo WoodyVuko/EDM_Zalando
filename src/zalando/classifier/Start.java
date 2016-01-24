@@ -62,7 +62,7 @@ public class Start {
 			Thread ClassifierThread10 = new Thread(new Classifier("ClassifierT10", inputQ, outputQ));
 			
 			ClassifierThread1.start();
-			ClassifierThread2.start();
+//			ClassifierThread2.start();
 //			ClassifierThread3.start();
 //			ClassifierThread4.start();
 //			ClassifierThread5.start();
