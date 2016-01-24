@@ -112,7 +112,7 @@ public class RssPipe {
 				obj.put("gold", goldObj);
 				obj.put("similarity", simObj);
 				
-				ImageParser ip = new ImageParser(doc, null, null);
+				ImageParser ip = new ImageParser(doc);
 				JSONArray ipArray = ip.result();
 				if (ipArray != null) {
 					obj.put("images_alt_tags", ipArray);
