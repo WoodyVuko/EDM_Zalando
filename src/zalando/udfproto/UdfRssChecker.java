@@ -1,4 +1,4 @@
-package zalando.classifier.main;
+package zalando.udfproto;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,7 +29,7 @@ import com.rometools.rome.io.XmlReader;
  * @author Carsten
  *
  */
-public class RssChecker {
+public class UdfRssChecker {
 	
 	private URI postUri;
 	private URI feedUri;
@@ -38,7 +38,7 @@ public class RssChecker {
 	private boolean checkedForAvailable;
 	private SyndEntry feedContent;
 	
-	public RssChecker(URI postUri, boolean isBlogger) {
+	public UdfRssChecker(URI postUri, boolean isBlogger) {
 		super();
 		this.postUri = postUri;
 		this.feedUri = null;
@@ -55,7 +55,7 @@ public class RssChecker {
 	 * 
 	 * @return true wenn der Blogeintrag im Feed vorhanden ist, sonst false
 	 */
-	public boolean rssFeedAvailable()
+	public boolean rssFeedAvailable() throws Exception
 	{
 		if (!this.checkedForAvailable) {
 			this.findFeedUri();
@@ -101,17 +101,18 @@ public class RssChecker {
 						break;
 					}
 				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				this.feedAvailable = false;
-			}	
+			}
+			catch (Exception e) 
+			{	
+				throw new Exception(e);
+			}
 			this.checkedForAvailable = true;
 		}
 		
 		return this.feedAvailable;
 	}
 	
-	public SyndEntry getContent()
+	public SyndEntry getContent() throws Exception
 	{
 		if (!this.checkedForAvailable) {
 			this.rssFeedAvailable();
@@ -124,7 +125,7 @@ public class RssChecker {
 	 * Diese methode ermittelt die RSS-Feed URI, indem der Link zerlegt wird,
 	 * die Landingpage des Blogs geladen wird und anschließend das Rss-Tag gesucht wird.
 	 */
-	private void findFeedUri()
+	private void findFeedUri() throws Exception
 	{
 		if (!this.checkedForAvailable) {
 			URI uri = null;
@@ -158,10 +159,12 @@ public class RssChecker {
 						uri = feedUri;
 					}
 				}
-			} catch (SAXException | IOException | DOMException | URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+			catch (Exception e) 
+			{	
+				throw new Exception(e);
+			}
+			
 			this.feedUri = uri;
 		}
 	}

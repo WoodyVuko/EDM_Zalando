@@ -1,4 +1,4 @@
-package zalando.classifier.pipes;
+package zalando.udfproto;
 
 import java.io.StringReader;
 import java.net.URI;
@@ -27,12 +27,12 @@ import zalando.classifier.main.SimilarityUtil;
  * gibt den Inhalt dafür zurück.
  *
  */
-public class RssPipe {
+public class UdfRssPipe {
 	
 	private String url;
 	private boolean isBlogger;
 	
-	public RssPipe(String url, boolean isBlogger) {
+	public UdfRssPipe(String url, boolean isBlogger) {
 		super();
 		this.url = url;
 		this.isBlogger = isBlogger;
@@ -50,7 +50,7 @@ public class RssPipe {
 	 * 
 	 * @return JSONObject JSONObject welches extrahierten Text und Titel, die Daten aus dem Goldstandard sowie die Vergleichswerte enthält.
 	 */
-	public JSONObject process()
+	public JSONObject process() throws Exception
 	{	
 		try {
 			RssChecker checker = new RssChecker(new URI(this.url), this.isBlogger);
@@ -120,10 +120,10 @@ public class RssPipe {
 			
 			return obj;
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println("failed for: " + this.url);
 		}
-		return null;
+		catch (Exception e) 
+		{	
+			throw new Exception(e);
+		}
 	}
 }

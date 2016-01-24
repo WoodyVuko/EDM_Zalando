@@ -1,6 +1,5 @@
-package zalando.classifier.pipes;
+package zalando.udfproto;
 
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
@@ -13,14 +12,13 @@ import java.io.StringReader;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.*;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-public class BPPipe {
+public class UdfBPPipe {
 	
 	private String url;
 	private String html;
 	
-	public BPPipe(String...strings) {
+	public UdfBPPipe(String...strings) {
 		super();
 		// TODO Auto-generated constructor stub
 		System.err.println("Default Pipe active");
@@ -28,7 +26,7 @@ public class BPPipe {
 		this.html = strings[1];
 	}
 
-	public JSONObject process() {
+	public JSONObject process() throws Exception {
 		// TODO Auto-generated method stub
 			
 		try 
@@ -85,14 +83,9 @@ public class BPPipe {
 				
 				return obj;
 		} 
-		catch (BoilerpipeProcessingException e) 
+		catch (Exception e) 
 		{	
-			System.out.println("boilerpipe error:" + e.getMessage());
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			System.out.println("sax error:" + e.getMessage());
+			throw new Exception(e);
 		}
-		return null;
-		
 	}
 }

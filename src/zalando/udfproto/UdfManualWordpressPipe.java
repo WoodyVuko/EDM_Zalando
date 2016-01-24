@@ -1,4 +1,4 @@
-package zalando.classifier.pipes;
+package zalando.udfproto;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import zalando.classifier.main.SimilarityUtil;
  * da diese zu Probleme bei der Verarbeitung führen können.
  *
  */
-public class ManualWordpressPipe {
+public class UdfManualWordpressPipe {
 	
 	private String url;
 	private String html;
@@ -42,7 +42,7 @@ public class ManualWordpressPipe {
 	 * @param url enthält die url zu dem jeweiligen blogeintrag
 	 * @param html der komplette html code des blogeintrags
 	 */
-	public ManualWordpressPipe(String url, String html) {
+	public UdfManualWordpressPipe(String url, String html) {
 		super();
 		this.url = url;
 		this.html = html;
@@ -69,7 +69,7 @@ public class ManualWordpressPipe {
 	 * 
 	 * @return JSONObject welches extrahierten Text und Titel, die Daten aus dem Goldstandard sowie die Vergleichswerte enthält.
 	 */
-	public JSONObject process()
+	public JSONObject process() throws Exception
 	{	
 		DOMParser parser = new DOMParser();
 		InputSource is = new InputSource(new StringReader(this.html));
@@ -139,12 +139,11 @@ public class ManualWordpressPipe {
 
 			return obj;
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		
-		return null;
+		catch (Exception e) 
+		{	
+			throw new Exception(e);
+		}
 	}
 	//toDo find more matches to make result better
 	//check Images

@@ -2,12 +2,10 @@ package zalando.classifier.main;
 
 import java.io.StringReader;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xerces.dom.AttrNSImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
