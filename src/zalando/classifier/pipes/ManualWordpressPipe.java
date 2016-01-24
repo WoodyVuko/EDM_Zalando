@@ -8,12 +8,17 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.xerces.dom.AttrNSImpl;
 import org.cyberneko.html.parsers.DOMParser;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+
+import com.rometools.rome.feed.rss.Image;
+
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
+import zalando.classifier.main.ImageParser;
 import zalando.classifier.main.SimilarityUtil;
 
 /**
@@ -126,6 +131,12 @@ public class ManualWordpressPipe {
 				obj.put("pipe", pipeObj);
 				obj.put("gold", goldObj);
 				obj.put("similarity", simObj);
+				
+				ImageParser ip = new ImageParser(doc, null, null);
+				JSONArray ipArray = ip.result();
+				if (ipArray != null) {
+					obj.put("images_alt_tags", ipArray);
+				}
 			}
 
 			return obj;
