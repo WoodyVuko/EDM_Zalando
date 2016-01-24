@@ -1,4 +1,4 @@
-package zalando.classifier.main;
+package zalando.udfproto;
 
 import java.io.StringReader;
 
@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
  * @author Carsten
  *
  */
-public class ImageParser {
+public class UdfImageParser {
 	
 	private Node node;
 	private String html;
@@ -30,7 +30,7 @@ public class ImageParser {
 	 * 
 	 * @param node der Node aus dem die Alt-Tags extrahiert werden.
 	 */
-	public ImageParser(Node node)
+	public UdfImageParser(Node node)
 	{
 		super();
 		this.node = node;
@@ -53,7 +53,7 @@ public class ImageParser {
 	 * @param html der HTML der nach startOfDoc untersucht wird
 	 * @param startOfDoc der zu suchende Start des extrahierten Texts
 	 */
-	public ImageParser(String html, String startOfDoc)
+	public UdfImageParser(String html, String startOfDoc)
 	{
 		super();
 		this.html = html;
@@ -67,7 +67,7 @@ public class ImageParser {
 	 * Um nach allen Bildern zu suchen, muss zuerst ein Node erstellt werden.
 	 * Dieser wird anschließend gefiltert und an den eigentlichen Processor weitergegeben.
 	 */
-	private void processText()
+	private void processText() throws Exception
 	{
 		DOMParser parser = new DOMParser();
 		InputSource is = new InputSource(new StringReader(this.html));
@@ -76,9 +76,10 @@ public class ImageParser {
 			Node doc = parser.getDocument();
 			doc = findNode(doc);
 			process(doc);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (Exception e) 
+		{	
+			throw new Exception(e);
 		}
 	}
 	
@@ -171,7 +172,7 @@ public class ImageParser {
 	 * 
 	 * @return das JSONArray mit den Alt-Tags oder null
 	 */
-	public JSONArray resultFromTextDoc()
+	public JSONArray resultFromTextDoc() throws Exception
 	{
 		if (!textProcessed) {
 			this.processText();

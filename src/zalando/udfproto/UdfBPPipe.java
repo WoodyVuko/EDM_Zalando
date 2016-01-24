@@ -3,13 +3,8 @@ package zalando.udfproto;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
-import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-import zalando.classifier.Start;
-import zalando.classifier.main.ImageParser;
-import zalando.classifier.main.SimilarityUtil;
 
 import java.io.StringReader;
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.*;
 import org.xml.sax.InputSource;
 
@@ -28,60 +23,33 @@ public class UdfBPPipe {
 
 	public JSONObject process() throws Exception {
 		// TODO Auto-generated method stub
-			
+
 		try 
 		{
 			InputSource input = new InputSource(new StringReader(this.html));
 			BoilerpipeSAXInput is = new BoilerpipeSAXInput(input);
 			TextDocument doc = is.getTextDocument();
 			ArticleExtractor ex = new ArticleExtractor();
-			JSONObject goldObj = Start.gold.get(this.url);
-			if (goldObj == null) 
-			{
-				return null;
-			}
-			String titleGold = goldObj.get("title").toString();
-			String text = goldObj.get("text").toString();
-			if (titleGold == null) {
-				titleGold = "";
-			}
 			String titlePipe = doc.getTitle();
 			if (titlePipe == null) {
 				titlePipe = "";
-			}
-			
-				JSONObject obj = new JSONObject();
-				NormalizedLevenshtein nls = new NormalizedLevenshtein();
-				double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
-				if (titleGold == "" || titlePipe == "") {
-					lev = 0.0;
-				}
-			String levFine = String.format("%.2f", lev);
+			}			
+			JSONObject obj = new JSONObject();
 
 			String docText = ex.getText(doc);
-				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-				String cosineFine = String.format("%.2f", cosine);
 
-			JSONObject pipeObj = new JSONObject();
-				pipeObj.put("title", titlePipe);
-				pipeObj.put("text", docText);
-							
-				JSONObject simObj = new JSONObject();
-				simObj.put("title", levFine);
-				simObj.put("text", cosineFine);
-				
-				obj.put("source", this.url);
-				obj.put("pipe", pipeObj);
-				obj.put("gold", goldObj);
-				obj.put("similarity", simObj);
-				String startOfDoc = text.split(" ")[0] + " " + text.split(" ")[1]; 
-				ImageParser ip = new ImageParser(this.html, startOfDoc);
-				JSONArray ipArray = ip.resultFromTextDoc();
-				if (ipArray != null) {
-					obj.put("images_alt_tags", ipArray);
-				}
-				
-				return obj;
+			obj.put("url", this.url);
+			obj.put("extracted_text", docText);
+			obj.put("extracted_title", titlePipe);
+
+			String startOfDoc = docText.split(" ")[0] + " " + docText.split(" ")[1]; 
+			UdfImageParser ip = new UdfImageParser(this.html, startOfDoc);
+			JSONArray ipArray = ip.resultFromTextDoc();
+			if (ipArray != null) {
+				obj.put("extracted_alttags", ipArray);
+			}
+
+			return obj;
 		} 
 		catch (Exception e) 
 		{	

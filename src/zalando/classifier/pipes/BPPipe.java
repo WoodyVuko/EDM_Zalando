@@ -76,7 +76,7 @@ public class BPPipe {
 				obj.put("pipe", pipeObj);
 				obj.put("gold", goldObj);
 				obj.put("similarity", simObj);
-				String startOfDoc = text.split(" ")[0] + " " + text.split(" ")[1]; 
+				String startOfDoc = docText.split(" ")[0] + " " + docText.split(" ")[1]; 
 				ImageParser ip = new ImageParser(this.html, startOfDoc);
 				JSONArray ipArray = ip.resultFromTextDoc();
 				if (ipArray != null) {
