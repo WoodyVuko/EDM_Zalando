@@ -27,7 +27,6 @@ public class BPPipe {
 		System.err.println("Default Pipe active");
 		this.url = strings[0];
 		this.html = strings[1];
-		this.process();
 	}
 
 	public JSONObject process() {

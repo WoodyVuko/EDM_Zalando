@@ -70,7 +70,7 @@ public class Classifier implements Runnable{
 				HttpURLConnection httpcon;
 				try {
 					httpcon = (HttpURLConnection) new URL(urlFromRaw).openConnection();
-					httpcon.addRequestProperty("User-Agent", "Mozilla/4.0");
+					httpcon.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
 					htmlFromRaw = IOUtils.toString(httpcon.getInputStream());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
