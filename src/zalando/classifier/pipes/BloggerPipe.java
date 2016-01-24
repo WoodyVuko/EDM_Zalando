@@ -108,7 +108,9 @@
 					double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
 					String levFine = String.format("%.2f", lev);
 					if(doc != null){
-						String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
+						//.replaceAll("\\s+", " ")
+						//String docText = doc.getTextContent().replaceAll("(\\r?\\n)+", "\n\n");
+						String docText = doc.getTextContent();
 						docText = StringEscapeUtils.unescapeJava(docText);
 						double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
 						String cosineFine = String.format("%.2f", cosine);
@@ -132,7 +134,7 @@
 						obj.put("gold", goldObj);
 						obj.put("similarity", simObj);
 						
-						ImageParser ip = new ImageParser(doc, null, null);
+						ImageParser ip = new ImageParser(doc);
 						JSONArray ipArray = ip.result();
 						if (ipArray != null) {
 							obj.put("images_alt_tags", ipArray);

@@ -14,6 +14,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import com.rometools.rome.feed.rss.Image;
+
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import zalando.classifier.Start;
 import zalando.classifier.main.ImageParser;
@@ -106,7 +108,8 @@ public class ManualWordpressPipe {
 			double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
 			String levFine = String.format("%.2f", lev);
 			if(doc != null){
-				String docText = doc.getTextContent().replaceAll("\\s+", " ").replaceAll("[^\\x00-\\x7F]", "");
+				//String docText = doc.getTextContent().replaceAll("(\\r?\\n)+", "\n\n");
+				String docText = doc.getTextContent();
 				docText = StringEscapeUtils.unescapeJava(docText);
 				double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
 				String cosineFine = String.format("%.2f", cosine);
