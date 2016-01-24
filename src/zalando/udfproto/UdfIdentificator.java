@@ -1,19 +1,18 @@
-package zalando.classifier.main;
+package zalando.udfproto;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Identificator {
+public class UdfIdentificator {
 
 	final ArrayList<Pair<Pattern, Integer>> WordPress_PatternArrayList = new ArrayList<>();
 	final ArrayList<Pair<Pattern, Integer>> Blogger_PatternArrayList = new ArrayList<>();
 
-	public Identificator() {
+	public UdfIdentificator() {
 		super();	
 		//LIST OF ALL AVAILABLE PATTERN
 		Pair<Pattern, Integer> findOneDomain = Pair.of(Pattern.compile("[^(http|https)://][a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*"), 1);
@@ -42,7 +41,8 @@ public class Identificator {
 	public boolean isBlogger;
 	public boolean isWP;
 
-	public String evaluate(String...strings){
+	public String evaluate(String...strings) throws Exception
+	{
 
 		isBlogger = false;
 		isWP = false;
@@ -81,7 +81,7 @@ public class Identificator {
 		}
 
 		try {
-			RssChecker checker = new RssChecker(new URI(strings[0]), isBlogger);
+			UdfRssChecker checker = new UdfRssChecker(new URI(strings[0]), isBlogger);
 			boolean feed = checker.rssFeedAvailable();
 
 			if (feed) {
@@ -91,9 +91,10 @@ public class Identificator {
 				}
 			}
 
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (Exception e) 
+		{	
+			throw new Exception(e);
 		}
 
 		if (ident.equalsIgnoreCase("")) {

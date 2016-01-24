@@ -12,7 +12,6 @@ import zalando.classifier.main.SimilarityUtil;
 import java.io.StringReader;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.*;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -27,7 +26,6 @@ public class BPPipe {
 		System.err.println("Default Pipe active");
 		this.url = strings[0];
 		this.html = strings[1];
-		this.process();
 	}
 
 	public JSONObject process() {
@@ -78,8 +76,8 @@ public class BPPipe {
 				obj.put("pipe", pipeObj);
 				obj.put("gold", goldObj);
 				obj.put("similarity", simObj);
-				String startOfDoc = text.split(" ")[0] + " " + text.split(" ")[1]; 
-				ImageParser ip = new ImageParser(null, this.html, startOfDoc);
+				String startOfDoc = docText.split(" ")[0] + " " + docText.split(" ")[1]; 
+				ImageParser ip = new ImageParser(this.html, startOfDoc);
 				JSONArray ipArray = ip.resultFromTextDoc();
 				if (ipArray != null) {
 					obj.put("images_alt_tags", ipArray);
