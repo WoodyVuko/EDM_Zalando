@@ -36,17 +36,17 @@ public class UdfProto extends EvalFunc<String>
 					result = this.defaultPipeProcess(url, html);
 				break;
 			}
-//			case "blogger":
-//			{
-//				UdfBloggerPipe blogger_pipe = new UdfBloggerPipe(url, html);
-//				result = blogger_pipe.process();
-//
-//				if(result != null)
-//					result.put("selector", selector);
-//				else 
-//					result = this.defaultPipeProcess(url, html);
-//				break;
-//			}
+			case "blogger":
+			{
+				UdfBloggerPipe blogger_pipe = new UdfBloggerPipe(url, html);
+				result = blogger_pipe.process();
+
+				if(result != null)
+					result.put("selector", selector);
+				else 
+					result = this.defaultPipeProcess(url, html);
+				break;
+			}
 			case "rssBlogger":
 			case "rss":
 			{

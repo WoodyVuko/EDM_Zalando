@@ -1,4 +1,4 @@
-		package zalando.classifier.pipes;
+		package zalando.udfproto;
 
 		import java.io.StringReader;
 		import java.util.ArrayList;
@@ -13,14 +13,7 @@
 		import org.w3c.dom.NamedNodeMap;
 		import org.w3c.dom.Node;
 		import org.xml.sax.InputSource;
-
-		import com.rometools.rome.feed.rss.Image;
-
-		import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-		import zalando.classifier.Start;
-		import zalando.classifier.main.ImageParser;
-		import zalando.classifier.main.SimilarityUtil;
-
+		
 		/**
 		 * @author Carsten
 		 *
@@ -29,7 +22,7 @@
 		 * da diese zu Probleme bei der Verarbeitung führen können.
 		 *
 		 */
-		public class BloggerPipe {
+		public class UdfBloggerPipe {
 			
 			private String url;
 			private String html;
@@ -44,7 +37,7 @@
 			 * @param url enthält die url zu dem jeweiligen blogeintrag
 			 * @param html der komplette html code des blogeintrags
 			 */
-			public BloggerPipe(String url, String html) {
+			public UdfBloggerPipe(String url, String html) {
 				super();
 				this.url = url;
 				this.html = html;
@@ -86,58 +79,25 @@
 						return null;
 					}
 					
-					//Ab hier beginnt der Vergleich mit dem Goldstandard
-					JSONObject goldObj = Start.gold.get(this.url);
-					if (goldObj == null) 
-					{
-						return null;
-					}
-					String titleGold = goldObj.get("title").toString();
-					String text = goldObj.get("text").toString();
-					if (titleGold == null) {
-						titleGold = "";
-					}
 					String titlePipe = this.getTitleFromUrl();
 					if (titlePipe == null) {
 						titlePipe = "";
 					}
-					//toDO nicht alle unprintable Sachen l�schen evtl, Linebreaks
 					JSONObject obj = new JSONObject();
-					NormalizedLevenshtein nls = new NormalizedLevenshtein();
-					double lev = nls.distance(StringUtils.deleteWhitespace(titlePipe), StringUtils.deleteWhitespace(titleGold));
-					String levFine = String.format("%.2f", lev);
-					if(doc != null){
-						//.replaceAll("\\s+", " ")
-						//String docText = doc.getTextContent().replaceAll("(\\r?\\n)+", "\n\n");
-						String docText = doc.getTextContent();
-						docText = StringEscapeUtils.unescapeJava(docText);
-						double cosine = SimilarityUtil.consineTextSimilarity(StringUtils.split(docText), StringUtils.split(goldObj.get("text").toString()));
-						String cosineFine = String.format("%.2f", cosine);
-						//COMPARING END
-						
-						//toDO Collect more Meta Informations
-						//like author, url, domain, date, img-alt-tag think about more
-						//
-						
-						//Das JSONObject wird entsprechend der vorab erzeugten Daten aufgebaut
-						JSONObject pipeObj = new JSONObject();
-						pipeObj.put("title", titlePipe);
-						pipeObj.put("text", docText);
-									
-						JSONObject simObj = new JSONObject();
-						simObj.put("title", levFine);
-						simObj.put("text", cosineFine);
-						
-						obj.put("source", this.url);
-						obj.put("pipe", pipeObj);
-						obj.put("gold", goldObj);
-						obj.put("similarity", simObj);
-						
-						ImageParser ip = new ImageParser(doc);
-						JSONArray ipArray = ip.result();
-						if (ipArray != null) {
-							obj.put("images_alt_tags", ipArray);
-						}
+					//.replaceAll("\\s+", " ")
+					//String docText = doc.getTextContent().replaceAll("(\\r?\\n)+", "\n\n");
+					String docText = doc.getTextContent();
+					docText = StringEscapeUtils.unescapeJava(docText);
+
+					//Das JSONObject wird entsprechend der vorab erzeugten Daten aufgebaut
+					obj.put("url", this.url);
+					obj.put("extracted_text", docText);
+					obj.put("extracted_title", this.getTitleFromUrl());
+
+					UdfImageParser ip = new UdfImageParser(doc);
+					JSONArray ipArray = ip.result();
+					if (ipArray != null) {
+						obj.put("extracted_alttags", ipArray);
 					}
 
 					return obj;
