@@ -154,8 +154,6 @@
 			//check Images
 			//
 			
-			
-			
 			/**
 			 * Diese Methode dient dazu den Node rekursiv zu suchen, der dem RegEx (post|entry|main)?[-_]?(content|body) entspricht.
 			 * Diese Methode sollte nur verwendet werden, um das Ergebnis der getArticleIdNode() Methode zu verbessern.
@@ -252,6 +250,125 @@
 		        return null;
 			}
 			
+			//------------------------//
+			
+			private Node getArticleNode(Node node)
+			{
+				Pattern p = Pattern.compile("post([-_]\\d+)?", Pattern.CASE_INSENSITIVE);
+				
+				//bei der Analyse der Zalando-Daten stellte sich raus das lediglich div bzw. article Tags von relevanz sind
+				if (node.getNodeName().equalsIgnoreCase("article")) {
+					
+					//für alle div bzw. article Tags werden die Attribute durchsucht und geprüft ob das id bzw. class
+					//Attribute das RegEx Pattern matcht.
+					NamedNodeMap atts = node.getAttributes();
+					for (int i = 0; i < atts.getLength(); i++) {
+						Object att = atts.item(i);
+						if (att instanceof AttrNSImpl) {
+							AttrNSImpl realAtt = (AttrNSImpl)att;
+							if (realAtt.getName().equalsIgnoreCase("class")) 
+							{
+								if (p.matcher(realAtt.getValue()).matches()) 
+								{
+									return node;
+								}
+							}
+						}
+					}
+				}
+				//Falls bisher kein Match für das RegEx Pattern gefunden wurde werden die Kinder des
+				//Nodes durchsucht
+				Node child = node.getFirstChild();
+		        while (child != null) {
+		            Node noi = this.getPostBodyNode(child);
+		            if (noi != null) {
+						return noi;
+					}
+		            child = child.getNextSibling();
+		        }
+		        return null;
+			}
+			
+			private Node getEntryNode(Node node)
+			{
+				Pattern pClass = Pattern.compile("(post|entry)[-_](body|content)", Pattern.CASE_INSENSITIVE);
+				Pattern pId = Pattern.compile("post[-_]body[-_]\\d+", Pattern.CASE_INSENSITIVE);
+				Pattern pItemprop = Pattern.compile("articleBody", Pattern.CASE_INSENSITIVE);
+				
+				//bei der Analyse der Zalando-Daten stellte sich raus das lediglich div bzw. article Tags von relevanz sind
+				if (node.getNodeName().equalsIgnoreCase("div")) {
+					
+					//für alle div bzw. article Tags werden die Attribute durchsucht und geprüft ob das id bzw. class
+					//Attribute das RegEx Pattern matcht.
+					NamedNodeMap atts = node.getAttributes();
+					for (int i = 0; i < atts.getLength(); i++) {
+						Object att = atts.item(i);
+						if (att instanceof AttrNSImpl) {
+							AttrNSImpl realAtt = (AttrNSImpl)att;
+							if (realAtt.getName().equalsIgnoreCase("id")) 
+								if (pId.matcher(realAtt.getValue()).matches()) 
+									return node;
+							
+							if (realAtt.getName().equalsIgnoreCase("class")) 
+								if (pClass.matcher(realAtt.getValue()).find()) 
+									return node;
+							
+							if (realAtt.getName().equalsIgnoreCase("itemprop")) 
+								if (pItemprop.matcher(realAtt.getValue()).find()) 
+									return node;
+						}
+					}
+				}
+				//Falls bisher kein Match für das RegEx Pattern gefunden wurde werden die Kinder des
+				//Nodes durchsucht
+				Node child = node.getFirstChild();
+		        while (child != null) {
+		            Node noi = this.getEntryNode(child);
+		            if (noi != null) {
+						return noi;
+					}
+		            child = child.getNextSibling();
+		        }
+		        return null;
+			}
+			
+			private Node getLinkNode(Node node)
+			{
+				Pattern p = Pattern.compile("name=\"\\d+\"", Pattern.CASE_INSENSITIVE);
+				if (node.getNodeName().equalsIgnoreCase("a"))
+		        {
+					//für alle div bzw. article Tags werden die Attribute durchsucht und geprüft ob das id bzw. class
+					//Attribute das RegEx Pattern matcht.
+		        	NamedNodeMap atts = node.getAttributes();
+					for (int i = 0; i < atts.getLength(); i++) 
+					{
+						Object att = atts.item(i);
+						if (att instanceof AttrNSImpl) 
+						{
+							AttrNSImpl realAtt = (AttrNSImpl)att;
+							if (realAtt.getName().equalsIgnoreCase("name")) 
+							{
+								if (p.matcher(realAtt.toString()).matches()) 
+								{
+									return node.getParentNode();
+								}
+							}
+						}
+					}
+		        }
+				//Falls bisher kein Match für das RegEx Pattern gefunden wurde werden die Kinder des
+				//Nodes durchsucht
+		        Node child = node.getFirstChild();
+		        while (child != null) {
+		            Node noi = this.getLinkNode(child);
+		            if (noi != null) {
+						return noi;
+					}
+		            child = child.getNextSibling();
+		        }
+		        return null;
+			}
+			
 			
 			/**
 			 * Diese Methode dient dazu entsprechenden Methoden zur Filterung aufzurufen.
@@ -261,33 +378,59 @@
 			 */
 			private Node getNodesOfInterest(Node node)
 			{
-				//Node finden, der tag enthält, welches 70% aller Wordpress Blogs hat.
-				Node articleIdNode = getArticleIdNode(node);
-				Node postBodyNode = null;
-				if (articleIdNode != null) {
-					//Falls dieses gefunden wurde, versuchen den Content noch zu verfeiern
-					postBodyNode = getPostBodyNode(articleIdNode);
-					//gefunden Node säubern und zurückgeben
-					if (postBodyNode != null) {
-						removeTags(postBodyNode);
-						return postBodyNode;
-					}
+				Node linkNode = getLinkNode(node);
+				if (linkNode != null) {
+					Node entryNode = getEntryNode(linkNode);
+					if (entryNode != null) {
+						removeTags(entryNode);
+						return entryNode;
+					} 
 					else {
-						removeTags(articleIdNode);
-						return articleIdNode;
-					}
-						
-				}
-				else
-				{
-					//Falls der aktuelle Blog nicht zu den 70% gehört, versuchen den content trotzdem zu finden
-					//wird nur gemacht um den Recall zu erhöhen
-					postBodyNode = getPostBodyNode(node);
-					if (postBodyNode != null) {
-						removeTags(postBodyNode);
-						return postBodyNode;
+						removeTags(linkNode);
+						return linkNode;
 					}
 				}
+				else {
+					Node articleNode = getArticleNode(node);
+					if (articleNode != null) {
+						Node entryNode = getEntryNode(articleNode);
+						if (entryNode != null) {
+							removeTags(entryNode);
+							return entryNode;
+						} 
+						else {
+							removeTags(articleNode);
+							return articleNode;
+						}
+					}
+				}
+				//Node finden, der tag enthält, welches 70% aller Wordpress Blogs hat.
+//				Node articleIdNode = getArticleIdNode(node);
+//				Node postBodyNode = null;
+//				if (articleIdNode != null) {
+//					//Falls dieses gefunden wurde, versuchen den Content noch zu verfeiern
+//					postBodyNode = getPostBodyNode(articleIdNode);
+//					//gefunden Node säubern und zurückgeben
+//					if (postBodyNode != null) {
+//						removeTags(postBodyNode);
+//						return postBodyNode;
+//					}
+//					else {
+//						removeTags(articleIdNode);
+//						return articleIdNode;
+//					}
+//						
+//				}
+//				else
+//				{
+//					//Falls der aktuelle Blog nicht zu den 70% gehört, versuchen den content trotzdem zu finden
+//					//wird nur gemacht um den Recall zu erhöhen
+//					postBodyNode = getPostBodyNode(node);
+//					if (postBodyNode != null) {
+//						removeTags(postBodyNode);
+//						return postBodyNode;
+//					}
+//				}
 				//Solange rekursiv suchen, bis ein node gefunden wurde oder null zurückgeben, falls nichts vorhanden ist
 				Node child = node.getFirstChild();
 				while (child != null) {
